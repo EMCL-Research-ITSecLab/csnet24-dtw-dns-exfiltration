@@ -16,7 +16,7 @@ def multidimensional_to_numpy(s):
 if __name__ == "__main__":
 
     df = pl.read_csv(
-        "/home/smachmeier/Downloads/dataset.csv", has_header=False
+        "/home/smachmeier/Downloads/dataset_modified.csv", has_header=False
     ).with_columns([(pl.from_epoch("column_3", time_unit="ms"))])
 
     df = df.rename(
@@ -50,54 +50,58 @@ if __name__ == "__main__":
 
     x = df.select(["user_ip", "size_avg", "timestamp", "attack"])
 
-    x = x.with_columns(
-        [
-            pl.col(i).rank("dense").cast(pl.Int64).name.suffix("_encoded")
-            for i in ["user_ip", "attack"]
-        ]
-    )
-    x = x.drop(["user_ip", "attack"])
+    print(x)
 
-    x: pl.DataFrame = (
-        x.sort("timestamp")
-        .group_by_dynamic(
-            "timestamp",
-            every="5m",
-            closed="right",
-            by=["user_ip_encoded", "attack_encoded"],
-        )
-        .agg(pl.col("size_avg"))
-        .with_columns([pl.col("size_avg").list.mean()])
-    )
+    # x = x.with_columns(
+    #     [
+    #         pl.col(i).rank("dense").cast(pl.Int64).name.suffix("_encoded")
+    #         for i in ["user_ip", "attack"]
+    #     ]
+    # )
+    # x = x.drop(["user_ip", "attack"])
 
-    min_date = x.select(["timestamp"]).min().item()
-    max_date = x.select(["timestamp"]).max().item()
+    # x: pl.DataFrame = (
+    #     x.sort("timestamp")
+    #     .group_by_dynamic(
+    #         "timestamp",
+    #         every="5m",
+    #         closed="right",
+    #         by=["user_ip", "attack"],
+    #     )
+    #     .agg(pl.col("size_avg").count())
+    #     # .with_columns([pl.col("size_avg").list.mean()])
+    # )
 
-    # We generate empty datetime with zero values in a time range of 6h
-    datetimes = x.select(
-        pl.datetime_range(
-            min_date.replace(microsecond=0),
-            max_date.replace(microsecond=0),
-            "5m",
-            time_unit="ms",
-        ).alias("timestamp")
-    )
+    # min_date = x.select(["timestamp"]).min().item()
+    # max_date = x.select(["timestamp"]).max().item()
 
-    ids = x.select(["user_ip_encoded", "attack_encoded"]).unique()
+    # # We generate empty datetime with zero values in a time range of 6h
+    # datetimes = x.select(
+    #     pl.datetime_range(
+    #         min_date.replace(microsecond=0),
+    #         max_date.replace(microsecond=0),
+    #         "5m",
+    #         time_unit="ms",
+    #     ).alias("timestamp")
+    # )
 
-    # Cross joining all domain
-    all_dates = datetimes.join(ids, how="cross")
-    # Fill with null
-    x = all_dates.join(
-        x, how="left", on=["user_ip_encoded", "attack_encoded", "timestamp"]
-    ).fill_null(0)
+    # ids = x.select(["user_ip_encoded", "attack_encoded"]).unique()
 
-    x = x.group_by(["user_ip_encoded", "attack_encoded"]).agg(pl.col("size_avg"))
+    # # Cross joining all domain
+    # all_dates = datetimes.join(ids, how="cross")
+    # # Fill with null
+    # x = all_dates.join(
+    #     x, how="left", on=["user_ip_encoded", "attack_encoded", "timestamp"]
+    # ).fill_null(0)
+
+    x = x.group_by(["user_ip", "attack"]).agg(pl.col("size_avg"))
+
+    x = x.filter(pl.col("size_avg").list.len() == 100)
 
     Y = x.select(["attack_encoded"])
     x = x.select(["size_avg"])
 
     x = multidimensional_to_numpy(x["size_avg"])
-    np.save("x_data_5m_sizeavg.npy", x)
+    np.save("data/x_data_1min_packet_count.npy", x)
     Y = Y.to_numpy()
-    np.save("y_data_5m_sizeavg.npy", Y)
+    np.save("data/y_data_1min_packet_count.npy", Y)

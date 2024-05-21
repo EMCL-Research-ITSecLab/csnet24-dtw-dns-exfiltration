@@ -60,7 +60,6 @@ if __name__ == "__main__":
         )
         .agg(pl.col("size").count())
     )
-    print(x)
 
     # min_date = x.select(["timestamp"]).min().item()
     # max_date = x.select(["timestamp"]).max().item()
