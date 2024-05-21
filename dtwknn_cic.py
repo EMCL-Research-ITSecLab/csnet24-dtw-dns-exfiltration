@@ -3,16 +3,40 @@ from scipy.spatial.distance import cdist
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
-from dtaidistance import dtw
-from dtaidistance import dtw_visualisation as dtwvis
 import matplotlib.pyplot as plt
 from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 from tslearn.neighbors import KNeighborsTimeSeries
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn import metrics
 
-y = np.load("y_cic_h_packet.npy")
-X = np.load("x_cic_h_packet.npy")
+y = np.load("data/y_cic_1min_packet_count.npy")
+X = np.load("data/x_cic_1min_packet_count.npy")
+
+y2 = np.load("data/y_heicloud_1min_packet_count.npy")
+X2 = np.load("data/x_heicloud_1min_packet_count.npy")
+
+X = np.concatenate([X, X2])
+y = np.concatenate([y, y2])
+
+import matplotlib.pyplot as plt
+
+ax = plt.axes()
+ax.xaxis.grid(which="both")
+ax.set_ylabel("Amplitude")
+ax.set_xlabel("Time")
+for idx, j in enumerate(X):
+    if y[idx] == 1:
+        c = "r"
+    else:
+        c = "b"
+
+    plt.plot(j, linewidth=3, color=c)
+
+plt.minorticks_on()
+plt.savefig("dist_data.pdf")
+plt.show()
+plt.clf()
+
 
 scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
 X = scaler.fit_transform(X)
@@ -21,6 +45,7 @@ X = scaler.fit_transform(X)
 sz = X.shape[1]
 
 path, sim = metrics.dtw_path(X[0], X[1])
+print(sim)
 
 plt.figure(1, figsize=(8, 8))
 
@@ -54,10 +79,9 @@ ax_s_y.plot(-X[0], np.arange(sz)[::-1], "r-", linewidth=3.0)
 ax_s_y.axis("off")
 ax_s_y.set_ylim((0, sz - 1))
 
-plt.savefig("dist.pdf")
+plt.savefig("dtw_path.pdf")
 plt.show()
 plt.clf()
-
 
 print(X.shape)
 print(y.shape)
@@ -96,7 +120,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 knn = KNeighborsTimeSeries(n_neighbors=len(X_train))
 knn.fit(X_train)
 
-q = X_test[1].reshape(1, 100, 1)
+q = X_test[1].reshape(1, X_test.shape[1], 1)
 ret = knn.kneighbors(q)
 nn = ret[1][0][0]  # The nearest neighbour
 fn = ret[1][0][-1]  # The farthest neighbor
@@ -131,3 +155,8 @@ print(clf.best_params_["n_neighbors"])
 # evaluate
 y_pred = clf.predict(X_test)
 print(classification_report(y_test, y_pred))
+
+
+sampl = np.random.uniform(low=120, high=130, size=(100,))
+y_pred = clf.predict([sampl])
+print(y_pred)
