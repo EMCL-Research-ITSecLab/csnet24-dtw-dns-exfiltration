@@ -1,7 +1,7 @@
-import polars as pl
-import numpy as np
-
 from itertools import pairwise
+
+import numpy as np
+import polars as pl
 
 
 def multidimensional_to_numpy(s):
@@ -16,12 +16,9 @@ def multidimensional_to_numpy(s):
 if __name__ == "__main__":
 
     df = pl.read_csv(
-        "/home/smachmeier/Downloads/dataset_modified.csv", has_header=False
+        "./data/dataset_modified.csv", has_header=False
     ).with_columns(
-        [
-            (pl.from_epoch("column_3", time_unit="ms")),
-            (pl.lit(2)).alias("class")
-        ]
+        [(pl.from_epoch("column_3", time_unit="ms")), (pl.lit(2)).alias("class")]
     )
 
     df = df.rename(
@@ -40,8 +37,10 @@ if __name__ == "__main__":
             "column_12": "w_count_ratio",  # number of English words to request lenght ratio
             "column_13": "digits_ratio",  # percentage of digits in the request
             "column_14": "uppercase_ratio",  # percentage of capital letter in the request
+            
             # The following features are calculated using the current and the previous 9 requests (window size = 10).
             # Requests are grouped by (user_ip, domain) key.
+            
             "column_15": "time_avg",  # average time between requests
             "column_16": "time_stdev",  # standard deviation of times between requests
             "column_17": "size_avg",  # average size (length) of the requests
@@ -55,14 +54,14 @@ if __name__ == "__main__":
 
     x = df.select(["user_ip", "size_avg", "timestamp", "class"])
 
-    x = x.group_by(["user_ip", "class"]).agg(pl.col("size_avg")).with_columns(
-        [
-            (pl.col("size_avg").list.slice(0,100))
-        ]
+    x = (
+        x.group_by(["user_ip", "class"])
+        .agg(pl.col("size_avg"))
+        .with_columns([(pl.col("size_avg").list.slice(0, 100))])
     )
-    
+
     x = x.filter(pl.col("size_avg").list.len() == 100)
-    
+
     Y = x.select(["class"])
     x = x.select(["size_avg"])
 

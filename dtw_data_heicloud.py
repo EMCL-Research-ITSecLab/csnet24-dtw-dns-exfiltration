@@ -1,7 +1,7 @@
-import polars as pl
-import numpy as np
-
 from itertools import pairwise
+
+import numpy as np
+import polars as pl
 
 
 def multidimensional_to_numpy(s):
