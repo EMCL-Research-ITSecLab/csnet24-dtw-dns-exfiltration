@@ -17,7 +17,12 @@ if __name__ == "__main__":
 
     df = pl.read_csv(
         "/home/smachmeier/Downloads/dataset_modified.csv", has_header=False
-    ).with_columns([(pl.from_epoch("column_3", time_unit="ms"))])
+    ).with_columns(
+        [
+            (pl.from_epoch("column_3", time_unit="ms")),
+            (pl.lit(2)).alias("class")
+        ]
+    )
 
     df = df.rename(
         {
@@ -48,57 +53,17 @@ if __name__ == "__main__":
         }
     )
 
-    x = df.select(["user_ip", "size_avg", "timestamp", "attack"])
+    x = df.select(["user_ip", "size_avg", "timestamp", "class"])
 
-    print(x)
-
-    # x = x.with_columns(
-    #     [
-    #         pl.col(i).rank("dense").cast(pl.Int64).name.suffix("_encoded")
-    #         for i in ["user_ip", "attack"]
-    #     ]
-    # )
-    # x = x.drop(["user_ip", "attack"])
-
-    # x: pl.DataFrame = (
-    #     x.sort("timestamp")
-    #     .group_by_dynamic(
-    #         "timestamp",
-    #         every="5m",
-    #         closed="right",
-    #         by=["user_ip", "attack"],
-    #     )
-    #     .agg(pl.col("size_avg").count())
-    #     # .with_columns([pl.col("size_avg").list.mean()])
-    # )
-
-    # min_date = x.select(["timestamp"]).min().item()
-    # max_date = x.select(["timestamp"]).max().item()
-
-    # # We generate empty datetime with zero values in a time range of 6h
-    # datetimes = x.select(
-    #     pl.datetime_range(
-    #         min_date.replace(microsecond=0),
-    #         max_date.replace(microsecond=0),
-    #         "5m",
-    #         time_unit="ms",
-    #     ).alias("timestamp")
-    # )
-
-    # ids = x.select(["user_ip_encoded", "attack_encoded"]).unique()
-
-    # # Cross joining all domain
-    # all_dates = datetimes.join(ids, how="cross")
-    # # Fill with null
-    # x = all_dates.join(
-    #     x, how="left", on=["user_ip_encoded", "attack_encoded", "timestamp"]
-    # ).fill_null(0)
-
-    x = x.group_by(["user_ip", "attack"]).agg(pl.col("size_avg"))
-
+    x = x.group_by(["user_ip", "class"]).agg(pl.col("size_avg")).with_columns(
+        [
+            (pl.col("size_avg").list.slice(0,100))
+        ]
+    )
+    
     x = x.filter(pl.col("size_avg").list.len() == 100)
-
-    Y = x.select(["attack_encoded"])
+    
+    Y = x.select(["class"])
     x = x.select(["size_avg"])
 
     x = multidimensional_to_numpy(x["size_avg"])
