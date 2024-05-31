@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -27,26 +28,28 @@ def fit(X, y):
     y_pred = clf.predict(X_test)
     print(classification_report(y_test, y_pred))
 
-    sampl = np.random.uniform(low=120, high=120.5, size=(100,))
-    y_pred = clf.predict([sampl])
-    print(y_pred)
+    joblib.dump(clf, "dtwknn.pickle")
+
+    # sampl = np.random.uniform(low=120, high=120.5, size=(100,))
+    # y_pred = clf.predict([sampl])
+    # print(y_pred)
 
 
 if __name__ == "__main__":
-    y = np.load("data/y_cic_1min_packet_count.npy")
-    X = np.load("data/x_cic_1min_packet_count.npy")
+    y = np.load("data/y_cic_1min_entropy.npy")
+    X = np.load("data/x_cic_1min_entropy.npy")
 
-    y1 = np.load("data/y_data_1min_packet_count.npy")
-    X1 = np.load("data/x_data_1min_packet_count.npy")
+    # y1 = np.load("data/y_data_1min_packet_count.npy")
+    # X1 = np.load("data/x_data_1min_packet_count.npy")
+    
+    y1 = np.load("data/y_test_1min_entropy.npy")
+    X1 = np.load("data/x_test_1min_entropy.npy")
 
-    y2 = np.load("data/y_heicloud_1min_packet_count.npy")
-    X2 = np.load("data/x_heicloud_1min_packet_count.npy")
+    # y2 = np.load("data/y_heicloud_1min_packet_count.npy")
+    # X2 = np.load("data/x_heicloud_1min_packet_count.npy")
 
-    X = np.concatenate([X, X1, X2])
-    y = np.concatenate([y, y1, y2])
-
-    print(X.shape)
-    print(y.shape)
+    X = np.concatenate([X, X1])
+    y = np.concatenate([y, y1])
 
     # Count indices that are greater 0
     x_occ = np.argwhere(X > 0)
@@ -59,9 +62,6 @@ if __name__ == "__main__":
     X = X[np.where(filterdata[:, 1] > 1)]
     y = y[np.where(filterdata[:, 1] > 1)]
 
-    print(np.where(y == 1)[0].shape)
-    print(np.where(y == 2)[0].shape)
-
     y2 = y[np.where(y == 2)[0]]
     X2 = X[np.where(y == 2)[0]]
 
@@ -71,9 +71,8 @@ if __name__ == "__main__":
     X = np.concatenate([X1, X2])
     y = np.concatenate([y1, y2])
 
-    print(X.shape)
-    print(y.shape)
-
-    scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
-    X = scaler.fit_transform(X)
+    # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
+    # X = scaler.fit_transform(X)
     y = y.reshape(-1)
+
+    fit(X, y)

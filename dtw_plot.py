@@ -1,15 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import metrics
-from sklearn.model_selection import GridSearchCV, train_test_split
 from dtaidistance import dtw
 from dtaidistance import dtw_visualisation as dtwvis
+from sklearn import metrics
+from sklearn.model_selection import GridSearchCV, train_test_split
 from torch import cdist
 from tslearn.neighbors import KNeighborsTimeSeries
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 
 
-def plot_neighbours(type: str, X, y):
+def plot_neighbours(X, y, type: str):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.30, random_state=42
     )
@@ -38,7 +38,7 @@ def plot_neighbours(type: str, X, y):
     plt.clf()
 
 
-def plot_distribution(type, X):
+def plot_distribution(X, y, type: str):
     """Plots data distribution of NumPy Arrays
 
     Args:
@@ -105,7 +105,7 @@ def plot_path_manual(ds_name: str, X: np.asarray):
     plt.clf()
 
 
-def plot_dtw_path(type: str, X):
+def plot_dtw_path(X, y, type: str):
     """Plots DTW Path
 
     Args:
@@ -134,19 +134,23 @@ def plot_dtw_path(type: str, X):
     _, paths = dtw.warping_paths(X1[1], X1[0], window=50, use_pruning=True)
     best_path = dtw.best_path(paths)
     fig, _ = dtwvis.plot_warpingpaths(X1[1], X1[0], paths, best_path)
-    fig.savefig(f"figs/dtw_path_{type}_class1.pdf")
+    fig.savefig(f"figs/{type}_dtw_path_class1.pdf")
 
     _, paths = dtw.warping_paths(X2[1], X2[0], window=50, use_pruning=True)
     best_path = dtw.best_path(paths)
     fig, _ = dtwvis.plot_warpingpaths(X2[1], X2[0], paths, best_path)
-    fig.savefig(f"figs/dtw_path_{type}_class2.pdf")
+    fig.savefig(f"figs/{type}_dtw_path_class2.pdf")
+    plt.show()
+    plt.clf()
 
 
 if __name__ == "__main__":
-    y = np.load("data/y_cic_h_packet.npy")
-    X = np.load("data/x_cic_h_packet.npy")
+    y = np.load("data/y_cic_1min_entropy.npy")
+    X = np.load("data/x_cic_1min_entropy.npy")
 
     scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
     X = scaler.fit_transform(X)
 
-    plot_dtw_path(X, "cic")
+    plot_dtw_path(X, y, "cic")
+    plot_distribution(X, y, "cic")
+    plot_neighbours(X, y, "cic")

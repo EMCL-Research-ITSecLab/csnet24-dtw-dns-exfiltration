@@ -1,5 +1,5 @@
 import fnmatch
-import math
+import datetime
 import os
 
 from scapy.layers.dns import DNS, DNSQR
@@ -7,20 +7,11 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.utils import rdpcap
 
-
-def shannon_entropy(string):
-    "Calculates the Shannon entropy of a string"
-
-    # get probability of chars in string
-    prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
-
-    # calculate the entropy
-    entropy = -sum([p * math.log(p) / math.log(2.0) for p in prob])
-
-    return entropy
+from utils import shannon_entropy
 
 
 def convert_pcaps(input_dir, output_dir):
+    i = 0
     for root, dirnames, filenames in os.walk(input_dir):
         for filename in fnmatch.filter(filenames, "*.pcap"):
             match = os.path.join(root, filename)
@@ -42,10 +33,15 @@ def convert_pcaps(input_dir, output_dir):
             for packet in dnsPackets:
                 if (
                     packet.haslayer(DNSQR)
-                    and (packet[DNSQR].qtype == 1 or packet[DNSQR].qtype == 28)
+                    and (
+                        packet[DNSQR].qtype == 1
+                        or packet[DNSQR].qtype == 28
+                        or packet[DNSQR].qtype == 5
+                        or packet[DNSQR].qtype == 16
+                    )
                     and packet.dport == 53
                 ):
-                    time = packet.time
+                    time = datetime.datetime.utcfromtimestamp(float(packet.time))
                     query = packet[DNSQR].qname
                     src_ip, dst_ip = "", ""
                     if IP in packet:
@@ -58,8 +54,9 @@ def convert_pcaps(input_dir, output_dir):
                     entropy = shannon_entropy(query)
                     with open(f"{output_dir}/{sub_dir}.csv", "a+") as f:
                         f.write(
-                            f"{time},{src_ip},{dst_ip},{query},{entropy},{packet_size}\n"
+                            f"{time},192.168.0.{i},{dst_ip},{query},{entropy},{packet_size}\n"
                         )
+            i += 1
 
 
 if __name__ == "__main__":
