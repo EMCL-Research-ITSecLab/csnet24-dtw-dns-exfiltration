@@ -1,6 +1,8 @@
 import math
 from itertools import pairwise
+
 import polars as pl
+
 
 def multidimensional_to_numpy(s):
     dimensions = [1, len(s)]
@@ -9,6 +11,7 @@ def multidimensional_to_numpy(s):
         dimensions.append(len(s))
     dimensions = [p[1] // p[0] for p in pairwise(dimensions)]
     return s.to_numpy().reshape(dimensions)
+
 
 def shannon_entropy(string):
     "Calculates the Shannon entropy of a string"

@@ -3,7 +3,8 @@ import polars as pl
 
 from utils import multidimensional_to_numpy
 
-def group_cic_data(input_dir, filenames, class_type):
+
+def group_cic_data(input_dir, filenames, class_type, interval = "1s", length = 5):
     df_attacks = []
     for file in filenames:
         df_attack = pl.read_csv(
@@ -19,7 +20,7 @@ def group_cic_data(input_dir, filenames, class_type):
         df_attack: pl.DataFrame = (
             df_attack.sort("timestamp")
             .group_by_dynamic(
-                "timestamp", every="1s", closed="right", by=["src_ip", "class"]
+                "timestamp", every=interval, closed="right", by=["src_ip", "class"]
             )
             .agg(pl.col("entropy").mean(), pl.col("packet_size").mean())
         )
@@ -35,7 +36,7 @@ def group_cic_data(input_dir, filenames, class_type):
             pl.datetime_range(
                 min_date.replace(microsecond=0),
                 max_date.replace(microsecond=0),
-                "1s",
+                interval,
                 time_unit="us",
             ).alias("timestamp")
         )
@@ -51,7 +52,7 @@ def group_cic_data(input_dir, filenames, class_type):
 
         df_attack = x
 
-        df_attacks.append(df_attack[:5])
+        df_attacks.append(df_attack[:length])
     return df_attacks
 
 

@@ -1,5 +1,5 @@
-import fnmatch
 import datetime
+import fnmatch
 import os
 
 from scapy.layers.dns import DNS, DNSQR

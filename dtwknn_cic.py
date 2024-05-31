@@ -41,15 +41,18 @@ if __name__ == "__main__":
 
     # y1 = np.load("data/y_data_1min_packet_count.npy")
     # X1 = np.load("data/x_data_1min_packet_count.npy")
-    
+
     y1 = np.load("data/y_test_1min_entropy.npy")
     X1 = np.load("data/x_test_1min_entropy.npy")
+    
+    y2 = np.load("data/y_testg_1min_entropy.npy")
+    X2 = np.load("data/x_testg_1min_entropy.npy")
 
     # y2 = np.load("data/y_heicloud_1min_packet_count.npy")
     # X2 = np.load("data/x_heicloud_1min_packet_count.npy")
 
-    X = np.concatenate([X, X1])
-    y = np.concatenate([y, y1])
+    X = np.concatenate([X, X1, X2])
+    y = np.concatenate([y, y1, y2])
 
     # Count indices that are greater 0
     x_occ = np.argwhere(X > 0)
