@@ -4,7 +4,7 @@ import polars as pl
 from utils import multidimensional_to_numpy
 
 
-def group_cic_data(input_dir, filenames, class_type, interval = "1s", length = 5):
+def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
     df_attacks = []
     for file in filenames:
         df_attack = pl.read_csv(

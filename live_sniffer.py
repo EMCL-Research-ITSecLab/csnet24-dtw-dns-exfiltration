@@ -1,3 +1,4 @@
+import codecs
 import datetime
 import sched
 from multiprocessing import Queue
@@ -35,6 +36,8 @@ class Consumer(Thread):
         self.data = []
         self.s = sched.scheduler(time.time, time.sleep)
         self.model = joblib.load(model_path)
+    
+    
 
     def run(self):
         while True:
@@ -45,9 +48,9 @@ class Consumer(Thread):
                 or packet[DNSQR].qtype == 5
                 or packet[DNSQR].qtype == 16
                 or packet[DNSQR].qtype == 10
-            ):
+            ) and packet.dport == 53:
                 time = datetime.utcfromtimestamp(float(packet.time))
-                query = packet[DNSQR].qname
+                query = codecs.decode(packet[DNSQR].qname, encoding="latin-1")
                 src_ip, dst_ip = "", ""
                 if IP in packet:
                     src_ip = packet[IP].src
@@ -65,16 +68,17 @@ class Consumer(Thread):
                 p["dst_ip"] = dst_ip
                 p["entropy"] = entropy
                 p["packet_size"] = packet_size
+                p["query"] = query
 
                 self.channels.append(p)
 
     def check(self):
         if len(self.channels) > 1:
-            df = pl.DataFrame(self.channels)
+            df_total = pl.DataFrame(self.channels)
             df = (
-                df.sort("timestamp")
+                df_total.sort("timestamp")
                 .group_by_dynamic(
-                    "timestamp", every="2s", closed="right", by=["src_ip"]
+                    "timestamp", every="2s", closed="right", by=["src_ip", "dst_ip"]
                 )
                 .agg(pl.col("entropy").mean(), pl.col("packet_size").mean())
             )
@@ -91,29 +95,34 @@ class Consumer(Thread):
                 ).alias("timestamp")
             )
 
-            ids = df.select(["src_ip"]).unique()
+            ids = df.select(["src_ip", "dst_ip"]).unique()
 
             # Cross joining all domain
             all_dates = datetimes.join(ids, how="cross")
             # Fill with null
-            x = all_dates.join(df, how="left", on=["src_ip", "timestamp"]).fill_null(0)
+            x = all_dates.join(df, how="left", on=["src_ip", "dst_ip", "timestamp"]).fill_null(0)
 
-            x_column = x.group_by(["src_ip"]).agg(pl.col("entropy"))
+            x_column = x.group_by(["src_ip", "dst_ip"]).agg(pl.col("entropy"))
 
-            unique_ips = x_column.select(["src_ip"]).unique()
+            unique_ips = x_column.select(["src_ip", "dst_ip"]).unique()
             for row in unique_ips.rows(named=True):
                 data = x_column.filter(pl.col("src_ip") == row["src_ip"])
-                list_entropy = data.select("entropy").rows(named=True)[0]["entropy"]
+                
+                data_entropy = data.select("entropy").rows(named=True)[0]["entropy"]
+                
                 # Time interval 5 sec.
-                if len(list_entropy) > 4:
-                    data = np.asarray(list_entropy[:5])
-                    print(f"Prediction for data: {self.model.predict(data)}")
+                if len(data_entropy) > 4:
+                    result = self.model.predict(np.asarray(data_entropy[:5]))
+                    if result[0] == 2:
+                        print(f"Prediction for data: {result}")
+                        print(f"Suspicious Data: {df_total.filter(pl.col('src_ip') == row['src_ip']).sort('timestamp')}")
 
-                    self.data.append(data)
-                    y = np.full((len(self.data), 1), 1)
-                    np.save(f"data/x_testg_1min_entropy.npy", self.data)
-                    np.save(f"data/y_testg_1min_entropy.npy", y)
+                    # self.data.append(data)
+                    # y = np.full((len(self.data), 1), 1)
+                    # np.save(f"data/x_testg_1min_entropy.npy", self.data)
+                    # np.save(f"data/y_testg_1min_entropy.npy", y)
 
+                    # Clear channels
                     self.channels = []
         self.s.enter(1, 1, self.check)
         self.s.run()

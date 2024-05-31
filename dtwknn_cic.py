@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     y1 = np.load("data/y_test_1min_entropy.npy")
     X1 = np.load("data/x_test_1min_entropy.npy")
-    
+
     y2 = np.load("data/y_testg_1min_entropy.npy")
     X2 = np.load("data/x_testg_1min_entropy.npy")
 

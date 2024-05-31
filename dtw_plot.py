@@ -145,12 +145,30 @@ def plot_dtw_path(X, y, type: str):
 
 
 if __name__ == "__main__":
+    # y = np.load("data/y_cic_1min_entropy.npy")
+    # X = np.load("data/x_cic_1min_entropy.npy")
+
     y = np.load("data/y_cic_1min_entropy.npy")
     X = np.load("data/x_cic_1min_entropy.npy")
 
-    scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
-    X = scaler.fit_transform(X)
+    # y1 = np.load("data/y_data_1min_packet_count.npy")
+    # X1 = np.load("data/x_data_1min_packet_count.npy")
 
+    y1 = np.load("data/y_test_1min_entropy.npy")
+    X1 = np.load("data/x_test_1min_entropy.npy")
+
+    y2 = np.load("data/y_testg_1min_entropy.npy")
+    X2 = np.load("data/x_testg_1min_entropy.npy")
+
+    # y2 = np.load("data/y_heicloud_1min_packet_count.npy")
+    # X2 = np.load("data/x_heicloud_1min_packet_count.npy")
+
+    X = np.concatenate([X, X1, X2])
+    y = np.concatenate([y, y1, y2])
+
+    # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
+    # X = scaler.fit_transform(X)
+    
     plot_dtw_path(X, y, "cic")
     plot_distribution(X, y, "cic")
     plot_neighbours(X, y, "cic")
