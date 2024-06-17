@@ -1,7 +1,5 @@
 import codecs
 import datetime
-import sched
-import schedule
 from multiprocessing import Queue
 
 import joblib
@@ -24,7 +22,7 @@ class Sniffer(Thread):
 
     def run(self):
         while True:
-            sniff(prn=self.que.put, iface="docker0", filter="udp and port 53")
+            sniff(prn=self.que.put, iface="eno1", filter="udp and port 53")
 
 
 class Consumer(Thread):
@@ -114,6 +112,7 @@ class Validator(Thread):
                 x_column = x.group_by(["src_ip", "dst_ip"]).agg(pl.col("entropy"))
 
                 unique_ips = x_column.select(["src_ip", "dst_ip"]).unique()
+
                 for row in unique_ips.rows(named=True):
                     data = x_column.filter(pl.col("src_ip") == row["src_ip"])
                     

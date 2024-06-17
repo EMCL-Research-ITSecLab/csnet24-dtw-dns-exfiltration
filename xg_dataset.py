@@ -1,8 +1,9 @@
+import glob
 import logging
 import math
 from string import ascii_lowercase as alc
+
 import polars as pl
-import glob
 
 
 def preprocess(x: pl.DataFrame):
@@ -301,5 +302,4 @@ def load_data():
         df = df.select("query")
         df = preprocess(df)
         df = transform(df)
-        print(df)
         df.write_csv(f"data_{name}.csv", separator=",")
