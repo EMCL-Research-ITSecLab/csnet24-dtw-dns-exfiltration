@@ -6,6 +6,7 @@ import joblib
 import polars as pl
 import sklearn
 import torch
+import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.svm import OneClassSVM
@@ -21,11 +22,18 @@ if __name__ == "__main__":
     xtrain = []
     
     files = glob.glob("./dgarchive/*.csv")
-    files.append("/home/smachmeier/projects/heiDGA/full_data.csv")
+    # Load default data set as base for training
+    df_default = pl.read_csv("/home/smachmeier/projects/heiDGA/full_data.csv", separator=",").with_columns(pl.all().exclude("class").cast(pl.Float64, strict=False))
+    # Sort columns
+    df_default = df_default.select(sorted(df_default.columns))
     for file in files:
-        df = pl.read_csv(file, separator=",")[:10000]
-        y = df.select("class")
-        x = df.drop("class")
+        df = pl.read_csv(file, separator=",", n_rows=1000000).with_columns(pl.all().exclude("class").cast(pl.Float64, strict=False))
+        df = df.select(sorted(df.columns))
+        df = pl.concat([df, df_default.sample(n=100000, seed=42, shuffle=True, with_replacement=True)])
+
+        y = df.select("class").to_numpy()
+        x = df.drop("class").to_numpy()
+        
         X_train, X_test, Y_train, Y_test = sklearn.model_selection.train_test_split(
             x,
             y,
@@ -35,16 +43,19 @@ if __name__ == "__main__":
         xtrain.append(X_train)
         ytrain.append(Y_train)
         
-        xtrain.append(X_test)
-        ytrain.append(Y_test)
+        xtest.append(X_test)
+        ytest.append(Y_test)
+        
 
     torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     models = train_m_models(xtrain, ytrain)
     
-    joblib.dump(models, "models.pickle")
-    models = joblib.load("models.pickle")
+    joblib.dump(models, "models_full.pickle")
+    models = joblib.load("models_full.pickle")
     
+    xtest = [np.concatenate(xtest)]
+    ytest = [np.concatenate(ytest)]
     ensemble_reports, ensemble_cms, ensemble_preds = make_ensemble_preds(
         xtest, ytest, models
     )

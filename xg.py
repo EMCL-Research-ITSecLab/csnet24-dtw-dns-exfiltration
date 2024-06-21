@@ -100,7 +100,6 @@ def train_m_models(xs_train, ys_train):
     models = []
     for X, y in zip(xs_train, ys_train):
         model = xgb.XGBClassifier(tree_method="hist", device="cuda")
-        # model = xgb.XGBRFClassifier(tree_method='hist', device = "cuda")
         models.append(hypertrain(model, X, y))
 
     return models
