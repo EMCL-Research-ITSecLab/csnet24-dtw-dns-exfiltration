@@ -66,7 +66,7 @@ def transform(x: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame: preprocessed dataframe
     """
-    logging.debug("Start data transformation")
+    print("Start data transformation")
     x = x.with_columns(
         [
             (pl.col("query").str.split(".").list.len().alias("label_length")),
@@ -97,171 +97,137 @@ def transform(x: pl.DataFrame) -> pl.DataFrame:
                 ).alias(f"freq_{i}"),
             ]
         )
-
-    x = x.with_columns(
-        [
-            # FQDN
-            (pl.col("query").str.len_chars().alias("fqdn_full_count")),
-            (
-                pl.col("query")
-                .str.count_matches(r"[a-zA-Z]")
-                .truediv(pl.col("query").str.len_chars())
-            ).alias("fqdn_alpha_count"),
-            (
-                pl.col("query")
-                .str.count_matches(r"[0-9]")
-                .truediv(pl.col("query").str.len_chars())
-            ).alias("fqdn_numeric_count"),
-            (
-                pl.col("query")
-                .str.count_matches(r"[^\w\s]")
-                .truediv(pl.col("query").str.len_chars())
-            ).alias("fqdn_special_count"),
-        ]
-    )
-
-    x = x.with_columns(
-        [
-            (
-                pl.col("secondleveldomain")
-                .str.len_chars()
-                .truediv(pl.col("secondleveldomain").str.len_chars())
-                .alias("secondleveldomain_full_count")
-            ),
-            (
-                pl.col("secondleveldomain")
-                .str.count_matches(r"[a-zA-Z]")
-                .truediv(pl.col("secondleveldomain").str.len_chars())
-            ).alias("secondleveldomainn_alpha_count"),
-            (
-                pl.col("secondleveldomain")
-                .str.count_matches(r"[0-9]")
-                .truediv(pl.col("secondleveldomain").str.len_chars())
-            ).alias("secondleveldomainn_numeric_count"),
-            (
-                pl.col("secondleveldomain")
-                .str.count_matches(r"[^\w\s]")
-                .truediv(pl.col("secondleveldomain").str.len_chars())
-            ).alias("secondleveldomain_special_count"),
-        ]
-    )
-
-    x = x.with_columns(
-        [
-            (
-                pl.when(pl.col("thirdleveldomain").str.len_chars().eq(0))
-                .then(pl.lit(0))
-                .otherwise(
-                    pl.col("thirdleveldomain")
-                    .str.len_chars()
-                    .truediv(pl.col("thirdleveldomain").str.len_chars())
-                )
-            ).alias("thirdleveldomain_full_count"),
-            (
-                pl.when(pl.col("thirdleveldomain").str.len_chars().eq(0))
-                .then(pl.lit(0))
-                .otherwise(
-                    pl.col("thirdleveldomain")
-                    .str.count_matches(r"[a-zA-Z]")
-                    .truediv(pl.col("thirdleveldomain").str.len_chars())
-                )
-            ).alias("thirdleveldomain_alpha_count"),
-            (
-                pl.when(pl.col("thirdleveldomain").str.len_chars().eq(0))
-                .then(pl.lit(0))
-                .otherwise(
-                    pl.col("thirdleveldomain")
-                    .str.count_matches(r"[0-9]")
-                    .truediv(pl.col("thirdleveldomain").str.len_chars())
-                )
-            ).alias("thirdleveldomain_numeric_count"),
-            (
-                pl.when(pl.col("thirdleveldomain").str.len_chars().eq(0))
-                .then(pl.lit(0))
-                .otherwise(
-                    pl.col("thirdleveldomain")
-                    .str.count_matches(r"[^\w\s]")
-                    .truediv(pl.col("thirdleveldomain").str.len_chars())
-                )
-            ).alias("thirdleveldomain_special_count"),
-        ]
-    )
-    x = x.with_columns(
-        [
-            (
-                pl.concat_list(
-                    pl.all().exclude(
-                        "tld",
-                        "query",
-                        "labels",
-                        "thirdleveldomain",
-                        "secondleveldomain",
-                        "fqdn",
-                        "class",
+    for level in ["thirdleveldomain", "secondleveldomain", "fqdn"]:
+        x = x.with_columns(
+            [
+                (
+                    pl.when(pl.col(level).str.len_chars().eq(0))
+                    .then(pl.lit(0))
+                    .otherwise(
+                        pl.col(level)
+                        .str.len_chars()
+                        .truediv(pl.col(level).str.len_chars())
                     )
-                )
+                ).alias(f"{level}_full_count"),
+                (
+                    pl.when(pl.col(level).str.len_chars().eq(0))
+                    .then(pl.lit(0))
+                    .otherwise(
+                        pl.col(level)
+                        .str.count_matches(r"[a-zA-Z]")
+                        .truediv(pl.col(level).str.len_chars())
+                    )
+                ).alias(f"{level}_alpha_count"),
+                (
+                    pl.when(pl.col(level).str.len_chars().eq(0))
+                    .then(pl.lit(0))
+                    .otherwise(
+                        pl.col(level)
+                        .str.count_matches(r"[0-9]")
+                        .truediv(pl.col(level).str.len_chars())
+                    )
+                ).alias(f"{level}_numeric_count"),
+                (
+                    pl.when(pl.col(level).str.len_chars().eq(0))
+                    .then(pl.lit(0))
+                    .otherwise(
+                        pl.col(level)
+                        .str.count_matches(r"[^\w\s]")
+                        .truediv(pl.col(level).str.len_chars())
+                    )
+                ).alias(f"{level}_special_count"),
+            ]
+        )
+
+    x = x.with_columns(
+        [
+            (
+                pl.concat_list([f"freq_{i}" for i in alc])
                 .list.eval(pl.element().std())
                 .list.get(0)
-            ).alias("std"),
+            ).alias(f"freq_std"),
             (
-                pl.concat_list(
-                    pl.all().exclude(
-                        "tld",
-                        "query",
-                        "labels",
-                        "thirdleveldomain",
-                        "secondleveldomain",
-                        "fqdn",
-                        "class",
-                    )
-                )
+                pl.concat_list([f"freq_{i}" for i in alc])
                 .list.eval(pl.element().var())
                 .list.get(0)
-            ).alias("var"),
+            ).alias(f"freq_var"),
             (
-                pl.concat_list(
-                    pl.all().exclude(
-                        "tld",
-                        "query",
-                        "labels",
-                        "thirdleveldomain",
-                        "secondleveldomain",
-                        "fqdn",
-                        "class",
-                    )
-                )
+                pl.concat_list([f"freq_{i}" for i in alc])
                 .list.eval(pl.element().median())
                 .list.get(0)
-            ).alias("median"),
+            ).alias(f"freq_median"),
             (
-                pl.concat_list(
-                    pl.all().exclude(
-                        "tld",
-                        "query",
-                        "labels",
-                        "thirdleveldomain",
-                        "secondleveldomain",
-                        "fqdn",
-                        "class",
-                    )
-                )
+                pl.concat_list([f"freq_{i}" for i in alc])
                 .list.eval(pl.element().mean())
                 .list.get(0)
-            ).alias("mean"),
+            ).alias(f"freq_mean"),
         ]
     )
 
-    logging.debug("Start entropy calculation")
+    for level in ["thirdleveldomain", "secondleveldomain", "fqdn"]:
+        x = x.with_columns(
+            [
+                (
+                    pl.concat_list(
+                        [
+                            f"{level}_full_count",
+                            f"{level}_alpha_count",
+                            f"{level}_numeric_count",
+                            f"{level}_special_count",
+                        ]
+                    )
+                    .list.eval(pl.element().std())
+                    .list.get(0)
+                ).alias(f"{level}_std"),
+                (
+                    pl.concat_list(
+                        [
+                            f"{level}_full_count",
+                            f"{level}_alpha_count",
+                            f"{level}_numeric_count",
+                            f"{level}_special_count",
+                        ]
+                    )
+                    .list.eval(pl.element().var())
+                    .list.get(0)
+                ).alias(f"{level}_var"),
+                (
+                    pl.concat_list(
+                        [
+                            f"{level}_full_count",
+                            f"{level}_alpha_count",
+                            f"{level}_numeric_count",
+                            f"{level}_special_count",
+                        ]
+                    )
+                    .list.eval(pl.element().median())
+                    .list.get(0)
+                ).alias(f"{level}_median"),
+                (
+                    pl.concat_list(
+                        [
+                            f"{level}_full_count",
+                            f"{level}_alpha_count",
+                            f"{level}_numeric_count",
+                            f"{level}_special_count",
+                        ]
+                    )
+                    .list.eval(pl.element().mean())
+                    .list.get(0)
+                ).alias(f"{level}_mean"),
+            ]
+        )
+
+    print("Start entropy calculation")
     for ent in ["fqdn", "thirdleveldomain", "secondleveldomain"]:
         x = x.with_columns(
             [
                 (
                     pl.col(ent).map_elements(
-                        lambda z: [
-                            float(str(z).count(c)) / len(str(z))
-                            for c in dict.fromkeys(list(str(z)))
-                        ],
-                        return_dtype=pl.List(pl.Float64),
+                        lambda x: [
+                            float(str(x).count(c)) / len(str(x))
+                            for c in dict.fromkeys(list(str(x)))
+                        ]
                     )
                 ).alias("prob"),
             ]
@@ -280,20 +246,26 @@ def transform(x: pl.DataFrame) -> pl.DataFrame:
             ]
         )
         x = x.drop("prob")
-    logging.debug("Finished entropy calculation")
+    print("Finished entropy calculation")
 
     # Fill NaN
     x = x.fill_nan(0)
+    # Drop features not useful anymore
+    x = x.drop([
+                "query",
+                "labels",
+                "thirdleveldomain",
+                "secondleveldomain",
+                "fqdn",
+                "tld",
+            ])
 
-    x = x.drop("labels")
-
-    logging.debug("Finished data transformation")
+    print("Finished data transformation")
 
     return x
 
 
 def load_data():
-    datasets = []
     files = glob.glob("/home/smachmeier/Downloads/dgarchive/*.csv")
     for file in files:
         name = file.split("/")[-1].split(".")[0]
@@ -302,4 +274,8 @@ def load_data():
         df = df.select("query")
         df = preprocess(df)
         df = transform(df)
-        df.write_csv(f"data_{name}.csv", separator=",")
+        df = df.with_columns([pl.lit("2").alias("class")])
+        df.write_csv(f"dgarchive/data_{name}.csv", separator=",")
+        
+if __name__ == "__main__":
+    load_data()

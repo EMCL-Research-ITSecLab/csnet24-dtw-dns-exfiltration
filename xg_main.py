@@ -1,68 +1,51 @@
+import glob
+import pickle
+from string import ascii_lowercase as alc
+
 import joblib
+import polars as pl
+import sklearn
+import torch
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.svm import OneClassSVM
-from xg_dataset import load_data
-import polars as pl
-import torch
-from string import ascii_lowercase as alc
-import pickle
 
 from xg import make_ensemble_preds, train_m_models
+from xg_dataset import load_data
 
 if __name__ == "__main__":
-    # load_data()
-    df = pl.read_csv("/home/smachmeier/projects/heiDGA/full_data.csv", separator=",")
-    y = df.select("class")
     ytest = []
     xtest = []
-
-    # for level in ["fqdn", "thirdleveldomain", "secondleveldomain"]:
-    #     xtest.append(df.select([
-    #         f"{level}_full_count",
-    #         f"{level}_alpha_count",
-    #         f"{level}_numeric_count",
-    #         f"{level}_special_count",
-    #         f"{level}_median",
-    #         f"{level}_var",
-    #         f"{level}_std",
-    #         f"{level}_mean",
-    #         f"{level}_entropy",
-    #     ]))
-    #     ytest.append(y)
-
-    # freq = [f"freq_{i}" for i in alc]
-    # freq.append(f"freq_median")
-    # freq.append(f"freq_var",)
-    # freq.append(f"freq_std",)
-    # freq.append(f"freq_mean",)
-
-    # xtest.append(df.select(freq))
-    xtest.append(df.drop("class"))
-    ytest.append(y)
+    
+    ytrain = []
+    xtrain = []
+    
+    files = glob.glob("./dgarchive/*.csv")
+    files.append("/home/smachmeier/projects/heiDGA/full_data.csv")
+    for file in files:
+        df = pl.read_csv(file, separator=",")
+        y = df.select("class")
+        x = df.drop("class")
+        X_train, X_test, Y_train, Y_test = sklearn.model_selection.train_test_split(
+            x,
+            y,
+            train_size=0.8,
+            random_state=42,
+        )
+        xtrain.append(X_train)
+        ytrain.append(Y_train)
+        
+        xtrain.append(X_test)
+        ytrain.append(Y_test)
 
     torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    models = train_m_models(xtest, ytest)
+    
+    models = train_m_models(xtrain, ytrain)
+    
     joblib.dump(models, "models.pickle")
     models = joblib.load("models.pickle")
+    
     ensemble_reports, ensemble_cms, ensemble_preds = make_ensemble_preds(
         xtest, ytest, models
     )
     print(ensemble_reports)
-
-    # X = df.drop([
-    #                 "query",
-    #                 "labels",
-    #                 "thirdleveldomain",
-    #                 "secondleveldomain",
-    #                 "fqdn",
-    #                 "tld",
-    #                 "class"
-    #             ])
-    # y = df.select("class")
-
-    # trainX, testX, trainy, testy = train_test_split(X, y, test_size=0.5, random_state=2, stratify=y)
-    # model.fit(trainX)
-    # y_pred = model.predict(testX)
-    # print(y_pred)
-    # print(classification_report(testy, y_pred, labels=[1]))
