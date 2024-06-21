@@ -23,7 +23,7 @@ if __name__ == "__main__":
     files = glob.glob("./dgarchive/*.csv")
     files.append("/home/smachmeier/projects/heiDGA/full_data.csv")
     for file in files:
-        df = pl.read_csv(file, separator=",")
+        df = pl.read_csv(file, separator=",")[:10000]
         y = df.select("class")
         x = df.drop("class")
         X_train, X_test, Y_train, Y_test = sklearn.model_selection.train_test_split(

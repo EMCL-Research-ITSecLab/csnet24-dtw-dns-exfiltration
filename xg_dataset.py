@@ -274,7 +274,7 @@ def load_data():
         df = df.select("query")
         df = preprocess(df)
         df = transform(df)
-        df = df.with_columns([pl.lit("2").alias("class")])
+        df = df.with_columns([pl.lit("1").alias("class")])
         df.write_csv(f"dgarchive/data_{name}.csv", separator=",")
         
 if __name__ == "__main__":
