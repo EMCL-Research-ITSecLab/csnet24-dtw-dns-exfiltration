@@ -100,7 +100,7 @@ def plot_path_manual(ds_name: str, X: np.asarray):
     ax_s_y.axis("off")
     ax_s_y.set_ylim((0, sz - 1))
 
-    plt.savefig("dtw_path.pdf")
+    plt.savefig(f"dtw_path.pdf")
     plt.show()
     plt.clf()
 
@@ -145,30 +145,95 @@ def plot_dtw_path(X, y, type: str):
 
 
 if __name__ == "__main__":
-    # y = np.load("data/y_cic_1min_entropy.npy")
-    # X = np.load("data/x_cic_1min_entropy.npy")
+    x_arr = []
+    y_arr = []
 
-    y = np.load("data/y_cic_1min_entropy.npy")
-    X = np.load("data/x_cic_1min_entropy.npy")
+    # data = [
+    #     "2023-11-30_2023-12-01_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-01_2023-12-02_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-02_2023-12-03_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-03_2023-12-04_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-04_2023-12-05_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-05_2023-12-06_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-06_2023-12-07_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-07_2023-12-08_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-08_2023-12-09_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-09_2023-12-10_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-10_2023-12-11_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-11_2023-12-12_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-12_2023-12-13_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-13_2023-12-14_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-14_2023-12-15_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-15_2023-12-16_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-16_2023-12-17_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-17_2023-12-18_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-18_2023-12-19_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-19_2023-12-20_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-20_2023-12-21_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-21_2023-12-22_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-22_2023-12-23_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-23_2023-12-24_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-24_2023-12-25_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-25_2023-12-26_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-26_2023-12-27_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-27_2023-12-28_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-28_2023-12-29_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-29_2023-12-30_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-30_2023-12-31_sorted_heiCLOUD_DNS_responses",
+    #     "2023-12-31_2024-01-01_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-01_2024-01-02_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-02_2024-01-03_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-03_2024-01-04_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-04_2024-01-05_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-05_2024-01-06_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-06_2024-01-07_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-07_2024-01-08_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-08_2024-01-09_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-09_2024-01-10_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-10_2024-01-11_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-11_2024-01-12_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-12_2024-01-13_sorted_heiCLOUD_DNS_responses",
+    #     "2024-01-13_2024-01-14_sorted_heiCLOUD_DNS_responses",
+    # ]
+    
+    # load data
+    for data in ["cic", "live", "test"]:
+        y_arr.append(np.load(f"data/y_{data}_1min_entropy.npy"))
+        x_arr.append(np.load(f"data/x_{data}_1min_entropy.npy"))
+        
 
-    # y1 = np.load("data/y_data_1min_packet_count.npy")
-    # X1 = np.load("data/x_data_1min_packet_count.npy")
-
-    y1 = np.load("data/y_test_1min_entropy.npy")
-    X1 = np.load("data/x_test_1min_entropy.npy")
-
-    y2 = np.load("data/y_testg_1min_entropy.npy")
-    X2 = np.load("data/x_testg_1min_entropy.npy")
-
-    # y2 = np.load("data/y_heicloud_1min_packet_count.npy")
-    # X2 = np.load("data/x_heicloud_1min_packet_count.npy")
-
-    X = np.concatenate([X, X1, X2])
-    y = np.concatenate([y, y1, y2])
+    X = np.concatenate(x_arr)
+    y = np.concatenate(y_arr)
+    y = y.reshape(-1)
+    
 
     # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
     # X = scaler.fit_transform(X)
     
-    plot_dtw_path(X, y, "cic")
-    plot_distribution(X, y, "cic")
-    plot_neighbours(X, y, "cic")
+    plot_dtw_path(X, y, "cic_new")
+    plot_distribution(X, y, "cic_new")
+    plot_neighbours(X, y, "cic_new")
+    
+    from sklearn.datasets import load_diabetes
+    from fitter import HistFit, Fitter, get_common_distributions, get_distributions
+    import pandas as pd
+
+    y1 = y[np.where(y == 1)[0]]
+    X1 = X[np.where(y == 1)[0]]
+    
+    # Organize Data - from question
+    X = X1.reshape(-1)
+    X = X[X>0]
+    SR_y = pd.Series(X, name="y_ (Target Vector Distribution)")
+
+    # fitter
+    distributions_set = get_common_distributions()
+    distributions_set.extend(['arcsine', 'cosine', 'expon', 'weibull_max', 'weibull_min', 
+                            'dweibull', 't', 'pareto', 'exponnorm', 'lognorm',
+                            "norm", "exponweib", "weibull_max", "weibull_min", "pareto", "genextreme"])  
+
+    f = Fitter(SR_y, distributions = distributions_set) 
+    f.fit()
+    f.summary()
+    print(get_distributions())
+    

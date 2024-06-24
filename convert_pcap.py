@@ -12,7 +12,7 @@ from utils import shannon_entropy
 
 def convert_pcaps(input_dir, output_dir):
     i = 0
-    for root, dirnames, filenames in os.walk(input_dir):
+    for root, _, filenames in os.walk(input_dir):
         for filename in fnmatch.filter(filenames, "*.pcap"):
             match = os.path.join(root, filename)
             sub_dir = match.replace(input_dir, "")

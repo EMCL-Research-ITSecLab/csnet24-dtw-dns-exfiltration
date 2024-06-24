@@ -5,9 +5,9 @@ from utils import multidimensional_to_numpy
 
 
 def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
-    df_attacks = []
+    dfs = []
     for file in filenames:
-        df_attack = pl.read_csv(
+        df = pl.read_csv(
             f"{input_dir}/{file}.csv",
             has_header=True,
             separator=",",
@@ -17,22 +17,19 @@ def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
                 (pl.lit(class_type)).alias("class"),
             ]
         )
-        df_attack: pl.DataFrame = (
-            df_attack.sort("timestamp")
+        df: pl.DataFrame = (
+            df.sort("timestamp")
             .group_by_dynamic(
                 "timestamp", every=interval, closed="right", by=["src_ip", "class"]
             )
             .agg(pl.col("entropy").mean(), pl.col("packet_size").mean())
         )
 
-        min_date = df_attack.select(["timestamp"]).min().item()
-        # min_date = min_date.replace(minute=0, hour=0, second=0, microsecond=0)
-
-        max_date = df_attack.select(["timestamp"]).max().item()
-        # max_date = min_date.replace(minute=59, hour=23, second=59, microsecond=59)
+        min_date = df.select(["timestamp"]).min().item()
+        max_date = df.select(["timestamp"]).max().item()
 
         # We generate empty datetime with zero values in a time range of 6h
-        datetimes = df_attack.select(
+        datetimes = df.select(
             pl.datetime_range(
                 min_date.replace(microsecond=0),
                 max_date.replace(microsecond=0),
@@ -41,19 +38,19 @@ def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
             ).alias("timestamp")
         )
 
-        ids = df_attack.select(["src_ip", "class"]).unique()
+        ids = df.select(["src_ip", "class"]).unique()
 
         # Cross joining all domain
         all_dates = datetimes.join(ids, how="cross")
         # Fill with null
         x = all_dates.join(
-            df_attack, how="left", on=["src_ip", "class", "timestamp"]
+            df, how="left", on=["src_ip", "class", "timestamp"]
         ).fill_null(0)
 
-        df_attack = x
+        df = x
 
-        df_attacks.append(df_attack[:length])
-    return df_attacks
+        dfs.append(df[:length])
+    return dfs
 
 
 if __name__ == "__main__":
@@ -75,6 +72,41 @@ if __name__ == "__main__":
         ],
         "1",
     )
+    df_tunnel_dns2tcp = group_cic_data(
+        "./data_cic/dns2tcp",
+        [
+            "2018-03-23-11-08-11"
+        ],
+        "1",
+    )
+    df_tunnel_dnscapy = group_cic_data(
+        "./data_cic/dnscapy",
+        [
+            "2018-03-29-19-06-25"
+        ],
+        "1",
+    )
+    df_tunnel_iodine = group_cic_data(
+        "./data_cic/iodine",
+        [
+            "2018-03-19-19-06-24"
+        ],
+        "1",
+    )
+    df_tunnel_plain = group_cic_data(
+        "./data_cic/plain",
+        [
+            "2018-03-19-19-34-33"
+        ],
+        "1",
+    )
+    df_tunnel_tuns = group_cic_data(
+        "./data_cic/plain",
+        [
+            "2018-03-30-09-40-10"
+        ],
+        "1",
+    )
     df_benigns = group_cic_data(
         "./data_cic/cic/benign",
         [
@@ -87,7 +119,7 @@ if __name__ == "__main__":
         "0",
     )
 
-    total = df_benigns + df_attacks
+    total = df_benigns + df_attacks + df_tunnel_dns2tcp + df_tunnel_dnscapy + df_tunnel_iodine + df_tunnel_plain + df_tunnel_tuns
 
     x = pl.concat(total)
 

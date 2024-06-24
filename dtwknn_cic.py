@@ -6,7 +6,7 @@ from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 
 
-def fit(X, y):
+def fit(X, y, model_name = "dtwknn"):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.30, random_state=42
     )
@@ -28,7 +28,7 @@ def fit(X, y):
     y_pred = clf.predict(X_test)
     print(classification_report(y_test, y_pred))
 
-    joblib.dump(clf, "dtwknn.pickle")
+    joblib.dump(clf, f"{model_name}.pickle")
 
     # sampl = np.random.uniform(low=120, high=120.5, size=(100,))
     # y_pred = clf.predict([sampl])
@@ -36,23 +36,17 @@ def fit(X, y):
 
 
 if __name__ == "__main__":
-    y = np.load("data/y_cic_1min_entropy.npy")
-    X = np.load("data/x_cic_1min_entropy.npy")
+    x_arr = []
+    y_arr = []
+    
+    # load data
+    for data in ["cic", "live"]:
+        y_arr.append(np.load(f"data/y_{data}_1min_entropy.npy"))
+        x_arr.append(np.load(f"data/x_{data}_1min_entropy.npy"))
+        
 
-    # y1 = np.load("data/y_data_1min_packet_count.npy")
-    # X1 = np.load("data/x_data_1min_packet_count.npy")
-
-    y1 = np.load("data/y_test_1min_entropy.npy")
-    X1 = np.load("data/x_test_1min_entropy.npy")
-
-    y2 = np.load("data/y_testg_1min_entropy.npy")
-    X2 = np.load("data/x_testg_1min_entropy.npy")
-
-    # y2 = np.load("data/y_heicloud_1min_packet_count.npy")
-    # X2 = np.load("data/x_heicloud_1min_packet_count.npy")
-
-    X = np.concatenate([X, X1, X2])
-    y = np.concatenate([y, y1, y2])
+    X = np.concatenate(x_arr)
+    y = np.concatenate(y_arr)
 
     # Count indices that are greater 0
     x_occ = np.argwhere(X > 0)
@@ -78,4 +72,4 @@ if __name__ == "__main__":
     # X = scaler.fit_transform(X)
     y = y.reshape(-1)
 
-    fit(X, y)
+    fit(X, y, model_name="dtwknn_test")
