@@ -127,8 +127,8 @@ class Validator(Thread):
 
                         # self.data.append(data)
                         # y = np.full((len(self.data), 1), 1)
-                        # np.save(f"data/x_testg_1min_entropy.npy", self.data)
-                        # np.save(f"data/y_testg_1min_entropy.npy", y)
+                        # np.save(f"data/x_live_1min_entropy.npy", self.data)
+                        # np.save(f"data/y_live_1min_entropy.npy", y)
 
                         # Clear channels
                         self.channels = []
