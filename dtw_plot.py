@@ -3,10 +3,9 @@ import numpy as np
 from dtaidistance import dtw
 from dtaidistance import dtw_visualisation as dtwvis
 from sklearn import metrics
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import train_test_split
 from torch import cdist
 from tslearn.neighbors import KNeighborsTimeSeries
-from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 
 
 def plot_neighbours(X, y, type: str):
@@ -143,76 +142,75 @@ def plot_dtw_path(X, y, type: str):
     plt.show()
     plt.clf()
 
-
 if __name__ == "__main__":
     x_arr = []
     y_arr = []
 
-    # data = [
-    #     "2023-11-30_2023-12-01_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-01_2023-12-02_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-02_2023-12-03_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-03_2023-12-04_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-04_2023-12-05_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-05_2023-12-06_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-06_2023-12-07_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-07_2023-12-08_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-08_2023-12-09_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-09_2023-12-10_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-10_2023-12-11_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-11_2023-12-12_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-12_2023-12-13_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-13_2023-12-14_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-14_2023-12-15_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-15_2023-12-16_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-16_2023-12-17_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-17_2023-12-18_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-18_2023-12-19_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-19_2023-12-20_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-20_2023-12-21_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-21_2023-12-22_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-22_2023-12-23_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-23_2023-12-24_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-24_2023-12-25_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-25_2023-12-26_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-26_2023-12-27_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-27_2023-12-28_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-28_2023-12-29_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-29_2023-12-30_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-30_2023-12-31_sorted_heiCLOUD_DNS_responses",
-    #     "2023-12-31_2024-01-01_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-01_2024-01-02_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-02_2024-01-03_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-03_2024-01-04_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-04_2024-01-05_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-05_2024-01-06_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-06_2024-01-07_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-07_2024-01-08_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-08_2024-01-09_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-09_2024-01-10_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-10_2024-01-11_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-11_2024-01-12_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-12_2024-01-13_sorted_heiCLOUD_DNS_responses",
-    #     "2024-01-13_2024-01-14_sorted_heiCLOUD_DNS_responses",
-    # ]
+    data_heicloud = [
+        "2023-11-30_2023-12-01_sorted_heiCLOUD_DNS_responses",
+        "2023-12-01_2023-12-02_sorted_heiCLOUD_DNS_responses",
+        "2023-12-02_2023-12-03_sorted_heiCLOUD_DNS_responses",
+        "2023-12-03_2023-12-04_sorted_heiCLOUD_DNS_responses",
+        "2023-12-04_2023-12-05_sorted_heiCLOUD_DNS_responses",
+        "2023-12-05_2023-12-06_sorted_heiCLOUD_DNS_responses",
+        "2023-12-06_2023-12-07_sorted_heiCLOUD_DNS_responses",
+        "2023-12-07_2023-12-08_sorted_heiCLOUD_DNS_responses",
+        "2023-12-08_2023-12-09_sorted_heiCLOUD_DNS_responses",
+        "2023-12-09_2023-12-10_sorted_heiCLOUD_DNS_responses",
+        "2023-12-10_2023-12-11_sorted_heiCLOUD_DNS_responses",
+        "2023-12-11_2023-12-12_sorted_heiCLOUD_DNS_responses",
+        "2023-12-12_2023-12-13_sorted_heiCLOUD_DNS_responses",
+        "2023-12-13_2023-12-14_sorted_heiCLOUD_DNS_responses",
+        "2023-12-14_2023-12-15_sorted_heiCLOUD_DNS_responses",
+        "2023-12-15_2023-12-16_sorted_heiCLOUD_DNS_responses",
+        "2023-12-16_2023-12-17_sorted_heiCLOUD_DNS_responses",
+        "2023-12-17_2023-12-18_sorted_heiCLOUD_DNS_responses",
+        "2023-12-18_2023-12-19_sorted_heiCLOUD_DNS_responses",
+        "2023-12-19_2023-12-20_sorted_heiCLOUD_DNS_responses",
+        "2023-12-20_2023-12-21_sorted_heiCLOUD_DNS_responses",
+        "2023-12-21_2023-12-22_sorted_heiCLOUD_DNS_responses",
+        "2023-12-22_2023-12-23_sorted_heiCLOUD_DNS_responses",
+        "2023-12-23_2023-12-24_sorted_heiCLOUD_DNS_responses",
+        "2023-12-24_2023-12-25_sorted_heiCLOUD_DNS_responses",
+        "2023-12-25_2023-12-26_sorted_heiCLOUD_DNS_responses",
+        "2023-12-26_2023-12-27_sorted_heiCLOUD_DNS_responses",
+        "2023-12-27_2023-12-28_sorted_heiCLOUD_DNS_responses",
+        "2023-12-28_2023-12-29_sorted_heiCLOUD_DNS_responses",
+        "2023-12-29_2023-12-30_sorted_heiCLOUD_DNS_responses",
+        "2023-12-30_2023-12-31_sorted_heiCLOUD_DNS_responses",
+        "2023-12-31_2024-01-01_sorted_heiCLOUD_DNS_responses",
+        "2024-01-01_2024-01-02_sorted_heiCLOUD_DNS_responses",
+        "2024-01-02_2024-01-03_sorted_heiCLOUD_DNS_responses",
+        "2024-01-03_2024-01-04_sorted_heiCLOUD_DNS_responses",
+        "2024-01-04_2024-01-05_sorted_heiCLOUD_DNS_responses",
+        "2024-01-05_2024-01-06_sorted_heiCLOUD_DNS_responses",
+        "2024-01-06_2024-01-07_sorted_heiCLOUD_DNS_responses",
+        "2024-01-07_2024-01-08_sorted_heiCLOUD_DNS_responses",
+        "2024-01-08_2024-01-09_sorted_heiCLOUD_DNS_responses",
+        "2024-01-09_2024-01-10_sorted_heiCLOUD_DNS_responses",
+        "2024-01-10_2024-01-11_sorted_heiCLOUD_DNS_responses",
+        "2024-01-11_2024-01-12_sorted_heiCLOUD_DNS_responses",
+        "2024-01-12_2024-01-13_sorted_heiCLOUD_DNS_responses",
+        "2024-01-13_2024-01-14_sorted_heiCLOUD_DNS_responses",
+    ]
+    data_types = ["cic", "dnscapy", "tuns", "plain", "live", "test"]
+    data_types = data_types + data_heicloud
     
     # load data
-    for data in ["cic", "live", "test"]:
-        y_arr.append(np.load(f"data/y_{data}_1min_entropy.npy"))
-        x_arr.append(np.load(f"data/x_{data}_1min_entropy.npy"))
-        
-
+    for data_type in data_types:
+        y_arr.append(np.load(f"data/y_{data_type}_1min_entropy.npy"))
+        x_arr.append(np.load(f"data/x_{data_type}_1min_entropy.npy"))
+    
     X = np.concatenate(x_arr)
     y = np.concatenate(y_arr)
     y = y.reshape(-1)
-    
 
     # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
     # X = scaler.fit_transform(X)
     
-    plot_dtw_path(X, y, "cic_new")
-    plot_distribution(X, y, "cic_new")
-    plot_neighbours(X, y, "cic_new")
+    # plot_dtw_path(X, y, "cic_new")
+    # plot_distribution(X, y, "cic_new")
+    # plot_neighbours(X, y, "cic_new")
     
     from sklearn.datasets import load_diabetes
     from fitter import HistFit, Fitter, get_common_distributions, get_distributions
