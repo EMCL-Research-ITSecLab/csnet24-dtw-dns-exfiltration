@@ -6,10 +6,11 @@ from utils import multidimensional_to_numpy
 CONSTANT_CLASS_MALICIOUS = [2]
 CONSTANT_CLASS_BENIGN = [1]
 
+
 def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
     X_ent = []
     y_ent = []
-    
+
     X_packet_size = []
     y_packet_size = []
     for file in filenames:
@@ -54,14 +55,20 @@ def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
         ).fill_null(0)
 
         for frame in x.iter_slices(n_rows=5):
-            if frame["entropy"].sum() > 0 and frame["entropy"].len() > 4 and frame["entropy"].to_list().count(0) < 3:
+            if (
+                frame["entropy"].sum() > 0
+                and frame["entropy"].len() > 4
+                and frame["entropy"].to_list().count(0) < 3
+            ):
                 X_ent.append(frame.select(["entropy"]).to_numpy().reshape(-1))
                 if class_type == "0":
                     y_ent.append(CONSTANT_CLASS_BENIGN)
                 else:
                     y_ent.append(CONSTANT_CLASS_MALICIOUS)
-                
-                X_packet_size.append(frame.select(["packet_size"]).to_numpy().reshape(-1))
+
+                X_packet_size.append(
+                    frame.select(["packet_size"]).to_numpy().reshape(-1)
+                )
                 if class_type == "0":
                     y_packet_size.append(CONSTANT_CLASS_BENIGN)
                 else:
@@ -89,7 +96,7 @@ if __name__ == "__main__":
         ],
         "1",
     )
-    
+
     X_ent_cicb, y_ent_cicb, X_packet_size_cicb, y_packet_size_cicb = group_cic_data(
         "./data_cic/cic/benign",
         [
@@ -101,85 +108,74 @@ if __name__ == "__main__":
         ],
         "0",
     )
-    
+
     X_ent = X_ent_cicb + X_ent_cicm
     y_ent = y_ent_cicb + y_ent_cicm
     X_packet_size = X_packet_size_cicb + X_packet_size_cicm
     y_packet_size = y_packet_size_cicb + y_packet_size_cicm
-    
+
     np.save(f"data/x_cic_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_cic_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_cic_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_cic_1min_packet_size.npy", np.array(y_packet_size))
-    
+
     X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
         "./data_cic/dns2tcp",
-        [
-            "2018-03-23-11-08-11"
-        ],
+        ["2018-03-23-11-08-11"],
         "1",
     )
-    
+
     np.save(f"data/x_dns2tcp_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_dns2tcp_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_dns2tcp_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_dns2tcp_1min_packet_size.npy", np.array(y_packet_size))
-    
+
     X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
         "./data_cic/dnscapy",
-        [
-            "2018-03-29-19-06-25"
-        ],
+        ["2018-03-29-19-06-25"],
         "1",
     )
-    
+
     np.save(f"data/x_dnscapy_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_dnscapy_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_dnscapy_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_dnscapy_1min_packet_size.npy", np.array(y_packet_size))
-    
+
     X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
         "./data_cic/iodine",
-        [
-            "2018-03-19-19-06-24"
-        ],
+        ["2018-03-19-19-06-24"],
         "1",
     )
 
     np.save(f"data/x_iodine_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_iodine_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_iodine_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_iodine_1min_packet_size.npy", np.array(y_packet_size))
 
     X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
         "./data_cic/plain",
-        [
-            "2018-03-19-19-34-33"
-        ],
+        ["2018-03-19-19-34-33"],
         "1",
     )
 
     np.save(f"data/x_plain_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_plain_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_plain_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_plain_1min_packet_size.npy", np.array(y_packet_size))
 
     X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
         "./data_cic/tuns",
-        [
-            "2018-03-30-09-40-10"
-        ],
+        ["2018-03-30-09-40-10"],
         "1",
     )
 
     np.save(f"data/x_tuns_1min_entropy.npy", np.array(X_ent))
     np.save(f"data/y_tuns_1min_entropy.npy", np.array(y_ent))
-    
+
     np.save(f"data/x_tuns_1min_packet_size.npy", np.array(X_packet_size))
     np.save(f"data/y_tuns_1min_packet_size.npy", np.array(y_packet_size))
-

@@ -1,15 +1,17 @@
 import math
+
 import numpy as np
 import polars as pl
 
-from utils import multidimensional_to_numpy
+from utils import HEICLOUD_DATA, multidimensional_to_numpy
 
 CONSTANT_CLASS = [1]
+
 
 def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=5):
     X_ent = []
     y_ent = []
-    
+
     X_packet_size = []
     y_packet_size = []
     for file in filenames:
@@ -42,10 +44,8 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
         for row in unique_id.rows(named=True):
 
             # Run detector
-            x = df.filter(
-                (pl.col("src_ip") == row["src_ip"])
-            )
-            
+            x = df.filter((pl.col("src_ip") == row["src_ip"]))
+
             x = x.with_columns(
                 [
                     (
@@ -77,7 +77,10 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
                 .group_by_dynamic(
                     "timestamp", every=interval, closed="right", by=["src_ip", "class"]
                 )
-                .agg(pl.col("entropy").mean(), pl.col("packet_size").str.strip_chars("b").cast(pl.Int16).mean())
+                .agg(
+                    pl.col("entropy").mean(),
+                    pl.col("packet_size").str.strip_chars("b").cast(pl.Int16).mean(),
+                )
             )
 
             min_date = x.select(["timestamp"]).min().item()
@@ -104,77 +107,35 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
             x = all_dates.join(
                 x, how="left", on=["src_ip", "class", "timestamp"]
             ).fill_null(0)
-            
+
             for frame in x.iter_slices(n_rows=5):
-                if frame["entropy"].sum() > 0 and frame["entropy"].len() > 4 and frame["entropy"].to_list().count(0) < 3:
+                if (
+                    frame["entropy"].sum() > 0
+                    and frame["entropy"].len() > 4
+                    and frame["entropy"].to_list().count(0) < 3
+                ):
                     X_ent.append(frame.select(["entropy"]).to_numpy().reshape(-1))
                     y_ent.append(CONSTANT_CLASS)
-                    
-                    X_packet_size.append(frame.select(["packet_size"]).to_numpy().reshape(-1))
+
+                    X_packet_size.append(
+                        frame.select(["packet_size"]).to_numpy().reshape(-1)
+                    )
                     y_packet_size.append(CONSTANT_CLASS)
-                    
+
     return X_ent, y_ent, X_packet_size, y_packet_size
 
 
 if __name__ == "__main__":
-    data = [
-            "2023-11-30_2023-12-01_sorted_heiCLOUD_DNS_responses",
-            "2023-12-01_2023-12-02_sorted_heiCLOUD_DNS_responses",
-            "2023-12-02_2023-12-03_sorted_heiCLOUD_DNS_responses",
-            "2023-12-03_2023-12-04_sorted_heiCLOUD_DNS_responses",
-            "2023-12-04_2023-12-05_sorted_heiCLOUD_DNS_responses",
-            "2023-12-05_2023-12-06_sorted_heiCLOUD_DNS_responses",
-            "2023-12-06_2023-12-07_sorted_heiCLOUD_DNS_responses",
-            "2023-12-07_2023-12-08_sorted_heiCLOUD_DNS_responses",
-            "2023-12-08_2023-12-09_sorted_heiCLOUD_DNS_responses",
-            "2023-12-09_2023-12-10_sorted_heiCLOUD_DNS_responses",
-            "2023-12-10_2023-12-11_sorted_heiCLOUD_DNS_responses",
-            "2023-12-11_2023-12-12_sorted_heiCLOUD_DNS_responses",
-            "2023-12-12_2023-12-13_sorted_heiCLOUD_DNS_responses",
-            "2023-12-13_2023-12-14_sorted_heiCLOUD_DNS_responses",
-            "2023-12-14_2023-12-15_sorted_heiCLOUD_DNS_responses",
-            "2023-12-15_2023-12-16_sorted_heiCLOUD_DNS_responses",
-            "2023-12-16_2023-12-17_sorted_heiCLOUD_DNS_responses",
-            "2023-12-17_2023-12-18_sorted_heiCLOUD_DNS_responses",
-            "2023-12-18_2023-12-19_sorted_heiCLOUD_DNS_responses",
-            "2023-12-19_2023-12-20_sorted_heiCLOUD_DNS_responses",
-            "2023-12-20_2023-12-21_sorted_heiCLOUD_DNS_responses",
-            "2023-12-21_2023-12-22_sorted_heiCLOUD_DNS_responses",
-            "2023-12-22_2023-12-23_sorted_heiCLOUD_DNS_responses",
-            "2023-12-23_2023-12-24_sorted_heiCLOUD_DNS_responses",
-            "2023-12-24_2023-12-25_sorted_heiCLOUD_DNS_responses",
-            "2023-12-25_2023-12-26_sorted_heiCLOUD_DNS_responses",
-            "2023-12-26_2023-12-27_sorted_heiCLOUD_DNS_responses",
-            "2023-12-27_2023-12-28_sorted_heiCLOUD_DNS_responses",
-            "2023-12-28_2023-12-29_sorted_heiCLOUD_DNS_responses",
-            "2023-12-29_2023-12-30_sorted_heiCLOUD_DNS_responses",
-            "2023-12-30_2023-12-31_sorted_heiCLOUD_DNS_responses",
-            "2023-12-31_2024-01-01_sorted_heiCLOUD_DNS_responses",
-            "2024-01-01_2024-01-02_sorted_heiCLOUD_DNS_responses",
-            "2024-01-02_2024-01-03_sorted_heiCLOUD_DNS_responses",
-            "2024-01-03_2024-01-04_sorted_heiCLOUD_DNS_responses",
-            "2024-01-04_2024-01-05_sorted_heiCLOUD_DNS_responses",
-            "2024-01-05_2024-01-06_sorted_heiCLOUD_DNS_responses",
-            "2024-01-06_2024-01-07_sorted_heiCLOUD_DNS_responses",
-            "2024-01-07_2024-01-08_sorted_heiCLOUD_DNS_responses",
-            "2024-01-08_2024-01-09_sorted_heiCLOUD_DNS_responses",
-            "2024-01-09_2024-01-10_sorted_heiCLOUD_DNS_responses",
-            "2024-01-10_2024-01-11_sorted_heiCLOUD_DNS_responses",
-            "2024-01-11_2024-01-12_sorted_heiCLOUD_DNS_responses",
-            "2024-01-12_2024-01-13_sorted_heiCLOUD_DNS_responses",
-            "2024-01-13_2024-01-14_sorted_heiCLOUD_DNS_responses",
-    ]
-    for day in data:
+
+    for day in HEICLOUD_DATA:
         X_ent, y_ent, X_packet_size, y_packet_size = group_heicloud_data(
             "/home/smachmeier/results_2024-01-15_45d/",
-            [
-                day
-            ],
+            [day],
             "0",
         )
 
         np.save(f"data/x_{day}_1min_entropy.npy", np.array(X_ent))
         np.save(f"data/y_{day}_1min_entropy.npy", np.array(y_ent))
-        
+
         np.save(f"data/x_{day}_1min_packet_size.npy", np.array(X_packet_size))
         np.save(f"data/y_{day}_1min_packet_size.npy", np.array(y_packet_size))

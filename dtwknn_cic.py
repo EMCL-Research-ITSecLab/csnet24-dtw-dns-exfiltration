@@ -5,8 +5,10 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 
+from utils import HEICLOUD_DATA
 
-def fit(X, y, model_name = "dtwknn"):
+
+def fit(X, y, model_name="dtwknn"):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.30, random_state=42
     )
@@ -14,7 +16,9 @@ def fit(X, y, model_name = "dtwknn"):
     # train
     parameters = {"n_neighbors": [2, 4, 8, 10, 12, 14, 16]}
     clf = GridSearchCV(
-        KNeighborsTimeSeriesClassifier(metric="dtw", n_jobs=-1),
+        KNeighborsTimeSeriesClassifier(
+            metric="softdtw", metric_params={"gamma": 0.1}, n_jobs=-1
+        ),
         parameters,
         cv=2,
         n_jobs=-1,
@@ -38,12 +42,14 @@ def fit(X, y, model_name = "dtwknn"):
 if __name__ == "__main__":
     x_arr = []
     y_arr = []
-    
+
+    data_types = ["cic", "dnscapy", "tuns", "plain"]  # "live", "test"
+    data_types = data_types + HEICLOUD_DATA
+
     # load data
-    for data in ["cic", "live"]:
-        y_arr.append(np.load(f"data/y_{data}_1min_entropy.npy"))
-        x_arr.append(np.load(f"data/x_{data}_1min_entropy.npy"))
-        
+    for data_type in data_types:
+        y_arr.append(np.load(f"data/y_{data_type}_1min_entropy.npy"))
+        x_arr.append(np.load(f"data/x_{data_type}_1min_entropy.npy"))
 
     X = np.concatenate(x_arr)
     y = np.concatenate(y_arr)
@@ -59,8 +65,8 @@ if __name__ == "__main__":
     X = X[np.where(filterdata[:, 1] > 1)]
     y = y[np.where(filterdata[:, 1] > 1)]
 
-    y2 = y[np.where(y == 2)[0]]
-    X2 = X[np.where(y == 2)[0]]
+    y2 = y[np.where(y == 2)[0]][:1000]
+    X2 = X[np.where(y == 2)[0]][:1000]
 
     y1 = y[np.where(y == 1)[0]][:1000]
     X1 = X[np.where(y == 1)[0]][:1000]
@@ -68,8 +74,8 @@ if __name__ == "__main__":
     X = np.concatenate([X1, X2])
     y = np.concatenate([y1, y2])
 
-    # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
-    # X = scaler.fit_transform(X)
+    X, indices = np.unique(X.round(decimals=4), return_index=True, axis=0)
+    y = y[indices]
     y = y.reshape(-1)
 
     fit(X, y, model_name="dtwknn_test")
