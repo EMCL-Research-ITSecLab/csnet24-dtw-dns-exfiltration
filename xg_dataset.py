@@ -1,5 +1,4 @@
 import glob
-import logging
 import math
 from string import ascii_lowercase as alc
 

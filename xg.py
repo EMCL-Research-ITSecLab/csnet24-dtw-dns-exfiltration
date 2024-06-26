@@ -1,15 +1,10 @@
-import pickle
 from collections import Counter
 
 import joblib
 import numpy as np
-import optuna
-import sklearn
-import sklearn.metrics
 import xgboost as xgb
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
-from sklearn.svm import OneClassSVM
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import class_weight
 
 # from utils.plots import *
@@ -200,27 +195,3 @@ def get_index_and_proba(data):
         values.append(max(sublist))
 
     return indices, values
-
-
-def predict_xg(data):
-    """
-    Predictions of the model for certain data. Model is saved in output/models.pickle
-
-    Args:
-        data: A numpy array to predict on.
-    Returns:
-        A numpy array of class predictions
-    """
-
-    with open("models/XGBoost/XGBoost_model.pickle", "rb") as f:
-        models = pickle.load(f)
-
-    y_preds = []
-    for model in models:
-        y_pred = model.predict_proba(data)
-        y_preds.append(y_pred)
-
-    maj_preds = majority_vote(y_preds, rule="soft")
-    indices, _ = get_index_and_proba(maj_preds)
-
-    return np.array(indices)
