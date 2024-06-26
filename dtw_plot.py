@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from torch import cdist
 from tslearn.neighbors import KNeighborsTimeSeries
 
-from utils import HEICLOUD_DATA
+from dtw_utils import HEICLOUD_DATA
 
 
 def plot_neighbours(X, y, type: str):

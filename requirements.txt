@@ -4,3 +4,8 @@ polars
 numpy
 joblib
 torch
+
+scapy
+fitter
+tslearn
+matplotlib

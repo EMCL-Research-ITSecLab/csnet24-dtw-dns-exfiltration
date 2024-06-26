@@ -3,7 +3,7 @@ import math
 import numpy as np
 import polars as pl
 
-from utils import HEICLOUD_DATA, multidimensional_to_numpy
+from dtw_utils import HEICLOUD_DATA, multidimensional_to_numpy
 
 CONSTANT_CLASS = [1]
 

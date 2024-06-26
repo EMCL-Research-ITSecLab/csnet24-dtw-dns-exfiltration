@@ -1,7 +1,7 @@
 import numpy as np
 import polars as pl
 
-from utils import multidimensional_to_numpy
+from dtw_utils import multidimensional_to_numpy
 
 CONSTANT_CLASS_MALICIOUS = [2]
 CONSTANT_CLASS_BENIGN = [1]

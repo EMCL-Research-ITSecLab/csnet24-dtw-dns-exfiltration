@@ -5,7 +5,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 
-from utils import HEICLOUD_DATA
+from dtw_utils import HEICLOUD_DATA
 
 
 def fit(X, y, model_name="dtwknn"):
@@ -33,6 +33,7 @@ def fit(X, y, model_name="dtwknn"):
     print(classification_report(y_test, y_pred))
 
     joblib.dump(clf, f"models/{model_name}.pickle")
+
 
 if __name__ == "__main__":
     x_arr = []

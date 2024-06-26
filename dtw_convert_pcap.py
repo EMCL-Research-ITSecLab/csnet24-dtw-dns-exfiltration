@@ -7,7 +7,7 @@ from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 from scapy.utils import rdpcap
 
-from utils import shannon_entropy
+from dtw_utils import shannon_entropy
 
 
 def convert_pcaps(input_dir, output_dir):

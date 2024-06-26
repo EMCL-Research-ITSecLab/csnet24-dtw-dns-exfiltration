@@ -1,6 +1,7 @@
 import numpy as np
-
-from utils import HEICLOUD_DATA
+from fitter import Fitter, get_common_distributions, get_distributions
+from sklearn.datasets import load_diabetes
+from dtw_utils import HEICLOUD_DATA
 
 if __name__ == "__main__":
     x_arr = []
@@ -17,11 +18,6 @@ if __name__ == "__main__":
     X = np.concatenate(x_arr)
     y = np.concatenate(y_arr)
     y = y.reshape(-1)
-
-    import pandas as pd
-    from fitter import (Fitter, HistFit, get_common_distributions,
-                        get_distributions)
-    from sklearn.datasets import load_diabetes
 
     y1 = y[np.where(y == 2)[0]]
     X1 = X[np.where(y == 2)[0]]
