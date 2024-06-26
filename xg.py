@@ -1,14 +1,16 @@
 from collections import Counter
 
+import queue
+import threading
 import joblib
 import numpy as np
+import torch
 import xgboost as xgb
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import class_weight
 
-# from utils.plots import *
-
+QUEUE = queue.Queue()
 
 def test_models(models, xs_test, ys_test):
     """
@@ -97,16 +99,20 @@ def train_m_models(xs_train, ys_train):
         list: A list containing m xgboost.XGBClassifier models.
     """
     i = 0
+    
+    if torch.cuda.is_available():
+        for gpu in range(0, torch.cuda.device_count()):
+            threading.Thread(target=hypertrain, args=(f"cuda:{gpu}",), daemon=True).start()
+    else:
+        threading.Thread(target=hypertrain, args=(f"cpu",), daemon=True).start()
+    
     for X, y in zip(xs_train, ys_train):
-        model = xgb.XGBClassifier(
-            tree_method="hist", device="cuda", verbosity=0, silent=True
-        )
-        model = hypertrain(model, X, y)
-        joblib.dump(model, f"models/xgboost_model_{i}.pickle")
+        QUEUE.put_nowait((i, X, y))
         i += 1
+    QUEUE.join()
 
 
-def hypertrain(model, x, y):
+def hypertrain(device_cuda):
     """
     Trains a model on the provided features (x) and labels (y).
 
@@ -118,24 +124,30 @@ def hypertrain(model, x, y):
     Returns:
         xgboost.XGBClassifier: The trained model.
     """
+    
+    while True:
+        (i, x, y) = QUEUE.get()
+        model = xgb.XGBClassifier(
+            tree_method="hist", device=device_cuda, verbosity=0, silent=True
+        )
+        classes_weights = class_weight.compute_sample_weight(class_weight="balanced", y=y)
 
-    classes_weights = class_weight.compute_sample_weight(class_weight="balanced", y=y)
+        hp_space = {
+            "gamma": np.arange(1, 20),
+            "num_parallel_tree": np.linspace(10, 100, 10, dtype=int),
+            "max_depth": np.arange(1, 25),
+            "learning_rate": np.linspace(0.5, 0.01, 10),
+            "subsample": np.linspace(1, 0.1, 20),
+            "colsample_bynode": np.linspace(1, 0.1, 10),
+            "n_estimators": np.linspace(10, 200, 20, dtype=int),
+        }
+        clf = RandomizedSearchCV(
+            model, hp_space, scoring="neg_log_loss", verbose=2, random_state=0, n_jobs=-1
+        )
+        clf.fit(x, y, sample_weight=classes_weights)
 
-    hp_space = {
-        "gamma": np.arange(1, 20),
-        "num_parallel_tree": np.linspace(10, 100, 10, dtype=int),
-        "max_depth": np.arange(1, 25),
-        "learning_rate": np.linspace(0.5, 0.01, 10),
-        "subsample": np.linspace(1, 0.1, 20),
-        "colsample_bynode": np.linspace(1, 0.1, 10),
-        "n_estimators": np.linspace(10, 200, 20, dtype=int),
-    }
-    clf = RandomizedSearchCV(
-        model, hp_space, scoring="neg_log_loss", verbose=2, random_state=0, n_jobs=-1
-    )
-    clf.fit(x, y, sample_weight=classes_weights)
+        joblib.dump(clf.best_estimator_, f"models/xgboost_model_{i}.pickle")
 
-    return clf.best_estimator_
 
 def majority_vote(predictions, rule="hard"):
     """
