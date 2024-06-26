@@ -3,3 +3,4 @@ scikit-learn
 polars
 numpy
 joblib
+torch

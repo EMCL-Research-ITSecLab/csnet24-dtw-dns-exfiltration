@@ -32,12 +32,7 @@ def fit(X, y, model_name="dtwknn"):
     y_pred = clf.predict(X_test)
     print(classification_report(y_test, y_pred))
 
-    joblib.dump(clf, f"{model_name}.pickle")
-
-    # sampl = np.random.uniform(low=120, high=120.5, size=(100,))
-    # y_pred = clf.predict([sampl])
-    # print(y_pred)
-
+    joblib.dump(clf, f"models/{model_name}.pickle")
 
 if __name__ == "__main__":
     x_arr = []
