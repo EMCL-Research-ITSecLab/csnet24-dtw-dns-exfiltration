@@ -161,48 +161,6 @@ if __name__ == "__main__":
     y = np.concatenate(y_arr)
     y = y.reshape(-1)
 
-    # scaler = TimeSeriesScalerMeanVariance()  # Rescale time series
-    # X = scaler.fit_transform(X)
-
     plot_dtw_path(X, y, "cic_new")
     plot_distribution(X, y, "cic_new")
     plot_neighbours(X, y, "cic_new")
-
-    import pandas as pd
-    from fitter import Fitter, HistFit, get_common_distributions, get_distributions
-    from sklearn.datasets import load_diabetes
-
-    y1 = y[np.where(y == 2)[0]]
-    X1 = X[np.where(y == 2)[0]]
-
-    # Organize Data - from question
-    X = X1.reshape(-1)
-    X = X[X > 0]
-    SR_y = pd.Series(X, name="y_ (Target Vector Distribution)")
-
-    # fitter
-    distributions_set = get_common_distributions()
-    distributions_set.extend(
-        [
-            # "arcsine",
-            # "cosine",
-            # "expon",
-            # "weibull_max",
-            # "weibull_min",
-            # "dweibull",
-            # "t",
-            # "pareto",
-            # "exponnorm",
-            # "lognorm",
-            "norm",
-            # "exponweib",
-            # "weibull_max",
-            # "weibull_min",
-            # "pareto",
-            # "genextreme",
-        ]
-    )
-    # f = Fitter(SR_y, distributions=distributions_set)
-    # f.fit()
-    # f.summary()
-    # print(get_distributions())

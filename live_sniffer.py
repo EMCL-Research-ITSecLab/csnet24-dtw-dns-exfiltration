@@ -37,13 +37,17 @@ class Consumer(Thread):
     def run(self):
         while True:
             packet = self.que.get()
-            if packet.haslayer(DNSQR) and (
-                packet[DNSQR].qtype == 1
-                or packet[DNSQR].qtype == 28
-                or packet[DNSQR].qtype == 5
-                or packet[DNSQR].qtype == 16
-                or packet[DNSQR].qtype == 10
-            ) and packet.dport == 53:
+            if (
+                packet.haslayer(DNSQR)
+                and (
+                    packet[DNSQR].qtype == 1
+                    or packet[DNSQR].qtype == 28
+                    or packet[DNSQR].qtype == 5
+                    or packet[DNSQR].qtype == 16
+                    or packet[DNSQR].qtype == 10
+                )
+                and packet.dport == 53
+            ):
                 time = datetime.utcfromtimestamp(float(packet.time))
                 query = codecs.decode(packet[DNSQR].qname, encoding="latin-1")
                 src_ip, dst_ip = "", ""
@@ -66,6 +70,7 @@ class Consumer(Thread):
                 p["query"] = query
 
                 self.que_validator.put(p)
+
 
 class Validator(Thread):
     """Consumer"""
@@ -107,7 +112,9 @@ class Validator(Thread):
                 # Cross joining all domain
                 all_dates = datetimes.join(ids, how="cross")
                 # Fill with null
-                x = all_dates.join(df, how="left", on=["src_ip", "dst_ip", "timestamp"]).fill_null(0)
+                x = all_dates.join(
+                    df, how="left", on=["src_ip", "dst_ip", "timestamp"]
+                ).fill_null(0)
 
                 x_column = x.group_by(["src_ip", "dst_ip"]).agg(pl.col("entropy"))
 
@@ -115,15 +122,17 @@ class Validator(Thread):
 
                 for row in unique_ips.rows(named=True):
                     data = x_column.filter(pl.col("src_ip") == row["src_ip"])
-                    
+
                     data_entropy = data.select("entropy").rows(named=True)[0]["entropy"]
-                    
+
                     # Time interval 5 sec.
                     if len(data_entropy) > 4:
                         result = self.model.predict(np.asarray(data_entropy[:5]))
                         if result[0] == 2:
                             print(f"Prediction for data: {result}")
-                            print(f"Suspicious Data: {df_total.filter(pl.col('src_ip') == row['src_ip']).sort('timestamp')}")
+                            print(
+                                f"Suspicious Data: {df_total.filter(pl.col('src_ip') == row['src_ip']).sort('timestamp')}"
+                            )
 
                         # self.data.append(data)
                         # y = np.full((len(self.data), 1), 1)
@@ -132,6 +141,7 @@ class Validator(Thread):
 
                         # Clear channels
                         self.channels = []
+
 
 def main():
     que_data = Queue()

@@ -1,10 +1,14 @@
 import pickle
 from collections import Counter
 
+import joblib
 import numpy as np
+import optuna
+import sklearn
+import sklearn.metrics
 import xgboost as xgb
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
 from sklearn.svm import OneClassSVM
 from sklearn.utils import class_weight
 
@@ -97,12 +101,14 @@ def train_m_models(xs_train, ys_train):
     Returns:
         list: A list containing m xgboost.XGBClassifier models.
     """
-    models = []
+    i = 0
     for X, y in zip(xs_train, ys_train):
-        model = xgb.XGBClassifier(tree_method="hist", device="cuda")
-        models.append(hypertrain(model, X, y))
-
-    return models
+        model = xgb.XGBClassifier(
+            tree_method="hist", device="cuda", verbosity=0, silent=True
+        )
+        model = hypertrain(model, X, y)
+        joblib.dump(model, f"models/xgboost_model_{i}.pickle")
+        i += 1
 
 
 def hypertrain(model, x, y):
@@ -122,24 +128,92 @@ def hypertrain(model, x, y):
 
     hp_space = {
         "gamma": np.arange(1, 20),
-        # 'num_parallel_tree': np.linspace(10, 100, 10),
+        "num_parallel_tree": np.linspace(10, 100, 10, dtype=int),
         "max_depth": np.arange(1, 25),
         "learning_rate": np.linspace(0.5, 0.01, 10),
         "subsample": np.linspace(1, 0.1, 20),
-        # 'colsample_bynode': np.linspace(1, 0.1, 10)
+        "colsample_bynode": np.linspace(1, 0.1, 10),
         "n_estimators": np.linspace(10, 200, 20, dtype=int),
     }
     clf = RandomizedSearchCV(
-        model,
-        hp_space,
-        scoring="neg_log_loss",
-        # scoring = "accuracy",
-        verbose=2,
-        random_state=0,
+        model, hp_space, scoring="neg_log_loss", verbose=2, random_state=0, n_jobs=-1
     )
     clf.fit(x, y, sample_weight=classes_weights)
 
+    # study = optuna.create_study(direction="maximize")
+    # study.optimize(lambda trial: objective(trial, x, y), n_trials=100, timeout=600, n_jobs=-1)
+
+    # print("Number of finished trials: ", len(study.trials))
+    # print("Best trial:")
+    # trial = study.best_trial
+
+    # print("  Value: {}".format(trial.value))
+    # print("  Params: ")
+    # for key, value in trial.params.items():
+    #     print("    {}: {}".format(key, value))
+
     return clf.best_estimator_
+
+    # model = objective_bst(study.best_trial, x, y)
+    # del study
+    # return model
+
+
+def objective(trial, x, y):
+    train_x, valid_x, train_y, valid_y = train_test_split(
+        x, y, test_size=0.25, random_state=42
+    )
+    dtrain = xgb.DMatrix(train_x, label=train_y)
+    dvalid = xgb.DMatrix(valid_x, label=valid_y)
+
+    param = {
+        "verbosity": 0,
+        "objective": "binary:logistic",
+        "tree_method": "hist",
+        "device": "cuda",
+        # L2 regularization weight.
+        "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
+        # L1 regularization weight.
+        "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
+        # sampling ratio for training data.
+        "subsample": trial.suggest_float("subsample", 0.2, 1.0),
+        "gamma": trial.suggest_float("gamma", 1e-8, 1.0, log=True),
+        "max_depth": trial.suggest_int("max_depth", 3, 9, step=2),
+        # sampling according to each tree.
+        "colsample_bytree": trial.suggest_float("colsample_bytree", 0.2, 1.0),
+    }
+
+    bst = xgb.train(param, dtrain)
+    preds = bst.predict(dvalid)
+    pred_labels = np.rint(preds)
+    accuracy = sklearn.metrics.f1_score(valid_y, pred_labels)
+    return accuracy
+
+
+def objective_bst(trial, x, y):
+    train_x, valid_x, train_y, valid_y = train_test_split(x, y, test_size=0.25)
+    dtrain = xgb.DMatrix(train_x, label=train_y)
+    dvalid = xgb.DMatrix(valid_x, label=valid_y)
+
+    param = {
+        "verbosity": 0,
+        "objective": "binary:logistic",
+        "tree_method": "hist",
+        "device": "cuda",
+        # L2 regularization weight.
+        "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
+        # L1 regularization weight.
+        "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
+        # sampling ratio for training data.
+        "subsample": trial.suggest_float("subsample", 0.2, 1.0),
+        "gamma": trial.suggest_float("gamma", 1e-8, 1.0, log=True),
+        "max_depth": trial.suggest_int("max_depth", 3, 9, step=2),
+        # sampling according to each tree.
+        "colsample_bytree": trial.suggest_float("colsample_bytree", 0.2, 1.0),
+    }
+
+    bst = xgb.train(param, dtrain)
+    return bst
 
 
 def majority_vote(predictions, rule="hard"):

@@ -251,14 +251,16 @@ def transform(x: pl.DataFrame) -> pl.DataFrame:
     # Fill NaN
     x = x.fill_nan(0)
     # Drop features not useful anymore
-    x = x.drop([
-                "query",
-                "labels",
-                "thirdleveldomain",
-                "secondleveldomain",
-                "fqdn",
-                "tld",
-            ])
+    x = x.drop(
+        [
+            "query",
+            "labels",
+            "thirdleveldomain",
+            "secondleveldomain",
+            "fqdn",
+            "tld",
+        ]
+    )
 
     print("Finished data transformation")
 
@@ -276,6 +278,7 @@ def load_data():
         df = transform(df)
         df = df.with_columns([pl.lit("1").alias("class")])
         df.write_csv(f"dgarchive/data_{name}.csv", separator=",")
-        
+
+
 if __name__ == "__main__":
     load_data()
