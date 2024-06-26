@@ -71,7 +71,6 @@ if __name__ == "__main__":
     models = []
     files = glob.glob("./models/xgboost_model_*.pickle")
     for file in files:
-        name = file.split("/")[-1].split(".")[0]
         models.append(joblib.load(file))
 
     xtest = [np.concatenate(xtest)]
