@@ -128,11 +128,11 @@ def hypertrain(model, x, y):
 
     hp_space = {
         "gamma": np.arange(1, 20),
-        # "num_parallel_tree": np.linspace(10, 100, 10, dtype=int),
+        "num_parallel_tree": np.linspace(10, 100, 10, dtype=int),
         "max_depth": np.arange(1, 25),
         "learning_rate": np.linspace(0.5, 0.01, 10),
         "subsample": np.linspace(1, 0.1, 20),
-        # "colsample_bynode": np.linspace(1, 0.1, 10),
+        "colsample_bynode": np.linspace(1, 0.1, 10),
         "n_estimators": np.linspace(10, 200, 20, dtype=int),
     }
     clf = RandomizedSearchCV(
