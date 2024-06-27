@@ -60,4 +60,4 @@ def convert_pcaps(input_dir, output_dir):
 
 
 if __name__ == "__main__":
-    convert_pcaps("./pcaps", "./data_dtw")
+    convert_pcaps("./pcaps", "./dtw_data")

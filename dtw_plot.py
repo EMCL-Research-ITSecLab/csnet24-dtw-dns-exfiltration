@@ -1,7 +1,9 @@
+from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 import numpy as np
 from dtaidistance import dtw
 from dtaidistance import dtw_visualisation as dtwvis
+from scipy import interpolate
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from torch import cdist
@@ -45,17 +47,42 @@ def plot_distribution(X, y, type: str):
     Args:
         X (numpy.array): NumPy Array
     """
-    ax = plt.axes()
-    ax.xaxis.grid(which="both")
-    ax.set_ylabel("Amplitude")
-    ax.set_xlabel("Time")
-    for idx, j in enumerate(X):
-        if y[idx] == 1:
-            c = "r"
-        else:
-            c = "b"
+    testy = [0, 1, 2, 3, 4]
+    # ax = plt.axes()
+    # ax.xaxis.grid(which="both")
+    # ax.set_ylabel("Amplitude")
+    # ax.set_xlabel("Time")
+    ds = np.array([testy for i in range(0, X.shape[0])])
+    # Number of sample points
 
-        plt.plot(j, linewidth=0.1, color=c)
+    N = 600
+
+    # sample spacing
+
+    T = 1.0 / 10
+    yf = fft(X)
+
+    # xf = fftfreq(N, T)[:N//2]
+    xf = fftfreq(N, T)[:N//2]
+    
+    print(xf)
+    print(yf)
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(xf, np.abs(yf[:N//2]))
+
+    plt.grid()
+
+    plt.show()    
+    # for idx, (j,i) in enumerate(zip(X,ds)):
+    #     if y[idx] == 1:
+    #         c = "r"
+    #     else:
+    #         c = "b"
+    #     yt
+    #     # interp2 = interpolate.interp1d(j, i, kind = "slinear")
+    #     plt.plot(j, linewidth=0.1, color=c)
 
     plt.minorticks_on()
     plt.savefig(f"figs/{type}_distribution_data.pdf")
@@ -150,17 +177,17 @@ if __name__ == "__main__":
     y_arr = []
 
     data_types = ["cic", "dnscapy", "tuns", "plain"]  # "live", "test"
-    data_types = data_types + HEICLOUD_DATA[0]
+    # data_types = data_types + HEICLOUD_DATA
 
     # load data
     for data_type in data_types:
-        y_arr.append(np.load(f"data/y_{data_type}_1min_entropy.npy"))
-        x_arr.append(np.load(f"data/x_{data_type}_1min_entropy.npy"))
+        y_arr.append(np.load(f"dtw_data_npy/y_{data_type}_1min_entropy.npy")[:300])
+        x_arr.append(np.load(f"dtw_data_npy/x_{data_type}_1min_entropy.npy")[:300])
 
     X = np.concatenate(x_arr)
     y = np.concatenate(y_arr)
     y = y.reshape(-1)
 
-    plot_dtw_path(X, y, "cic_new")
-    plot_distribution(X, y, "cic_new")
-    plot_neighbours(X, y, "cic_new")
+    plot_dtw_path(X, y, "all")
+    plot_distribution(X, y, "all")
+    plot_neighbours(X, y, "all")

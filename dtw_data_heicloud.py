@@ -134,8 +134,8 @@ if __name__ == "__main__":
             "0",
         )
 
-        np.save(f"data/x_{day}_1min_entropy.npy", np.array(X_ent))
-        np.save(f"data/y_{day}_1min_entropy.npy", np.array(y_ent))
+        np.save(f"dtw_data_npy/x_{day}_1min_entropy.npy", np.array(X_ent))
+        np.save(f"dtw_data_npy/y_{day}_1min_entropy.npy", np.array(y_ent))
 
-        np.save(f"data/x_{day}_1min_packet_size.npy", np.array(X_packet_size))
-        np.save(f"data/y_{day}_1min_packet_size.npy", np.array(y_packet_size))
+        np.save(f"dtw_data_npy/x_{day}_1min_packet_size.npy", np.array(X_packet_size))
+        np.save(f"dtw_data_npy/y_{day}_1min_packet_size.npy", np.array(y_packet_size))
