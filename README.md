@@ -47,3 +47,18 @@ In addition, we also traced DNS tunnels in our lab environment.
 ## Verification
 
 In order to validate our results, we implemented a XGBoost Ensemble and validated our performance against a well-established method.
+
+## Problems
+
+### skTime and Tensorflow
+
+Set `XLA_FLAGS` for cuda path:
+```sh
+export XLA_FLAGS=--xla_gpu_cuda_data_dir=/usr/lib/cuda
+```
+
+Remove warning:
+
+```sh
+for a in /sys/bus/pci/devices/*; do echo 0 | sudo tee -a $a/numa_node; done
+```

@@ -3,7 +3,7 @@ import math
 import numpy as np
 import polars as pl
 
-from dtw_utils import HEICLOUD_DATA, multidimensional_to_numpy
+from dtw_utils import HEICLOUD_DATA
 
 CONSTANT_CLASS = [1]
 
@@ -111,8 +111,8 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
             for frame in x.iter_slices(n_rows=5):
                 if (
                     frame["entropy"].sum() > 0
-                    and frame["entropy"].len() > 4
-                    and frame["entropy"].to_list().count(0) < 3
+                    and frame["entropy"].len() > length - 1
+                    and frame["entropy"].to_list().count(0) < (length * 0.6)
                 ):
                     X_ent.append(frame.select(["entropy"]).to_numpy().reshape(-1))
                     y_ent.append(CONSTANT_CLASS)
