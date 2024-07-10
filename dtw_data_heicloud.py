@@ -3,7 +3,7 @@ import math
 import numpy as np
 import polars as pl
 
-from dtw_utils import HEICLOUD_DATA
+from dtw_utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG
 
 CONSTANT_CLASS = [1]
 
@@ -126,16 +126,23 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
 
 
 if __name__ == "__main__":
+    for ti in TIME_INTERVAL_CONFIG:
+        for day in HEICLOUD_DATA:
+            print(f"Start converting: {day} for {ti['time_interval']}")
+            X_ent, y_ent, X_packet_size, y_packet_size = group_heicloud_data(
+                "/home/smachmeier/results_2024-01-15_45d/",
+                [day],
+                "0",
+                interval=ti["time_interval"],
+                length=ti["minimum_length"]
+            )
+            
+            print(f"Finished converting: {day} for {ti['time_interval']}")
+            
+            np.save(f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_entropy.npy", np.array(X_ent))
+            np.save(f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_entropy.npy", np.array(y_ent))
 
-    for day in HEICLOUD_DATA:
-        X_ent, y_ent, X_packet_size, y_packet_size = group_heicloud_data(
-            "/home/smachmeier/results_2024-01-15_45d/",
-            [day],
-            "0",
-        )
-
-        np.save(f"dtw_data_npy/x_{day}_1min_entropy.npy", np.array(X_ent))
-        np.save(f"dtw_data_npy/y_{day}_1min_entropy.npy", np.array(y_ent))
-
-        np.save(f"dtw_data_npy/x_{day}_1min_packet_size.npy", np.array(X_packet_size))
-        np.save(f"dtw_data_npy/y_{day}_1min_packet_size.npy", np.array(y_packet_size))
+            np.save(f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_packet_size.npy", np.array(X_packet_size))
+            np.save(f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_packet_size.npy", np.array(y_packet_size))
+            
+            print(f"Done: {day} for {ti['time_interval']}")

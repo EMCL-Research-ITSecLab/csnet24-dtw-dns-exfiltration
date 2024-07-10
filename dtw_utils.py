@@ -51,6 +51,82 @@ HEICLOUD_DATA = [
     "2024-01-13_2024-01-14_sorted_heiCLOUD_DNS_responses",
 ]
 
+TIME_INTERVAL_CONFIG = [
+    {
+        "time_interval": "1s",
+        "minimum_length": 15,
+        "time_interval_name": "15s"
+    },
+    {
+        "time_interval": "1s",
+        "minimum_length": 30,
+        "time_interval_name": "30s"
+    },
+    {
+        "time_interval": "1s",
+        "minimum_length": 60,
+        "time_interval_name": "1min"
+    },
+    {
+        "time_interval": "1m",
+        "minimum_length": 5,
+        "time_interval_name": "5min"
+    },
+    {
+        "time_interval": "1m",
+        "minimum_length": 60,
+        "time_interval_name": "1h"
+    },
+    {
+        "time_interval": "1h",
+        "minimum_length": 6,
+        "time_interval_name": "6h"
+    },
+    {
+        "time_interval": "1h",
+        "minimum_length": 12,
+        "time_interval_name": "12h"
+    },
+    {
+        "time_interval": "1h",
+        "minimum_length": 24,
+        "time_interval_name": "24h"
+    }    
+]
+
+DATA_CONFIG = [
+    {
+        "name": "dns2tcp",
+        "input_dir": "./dtw_data/dns2tcp",
+        "filenames": ["2018-03-23-11-08-11"],
+        "class_type": "1"
+    },
+    {
+        "name": "dnscapy",
+        "input_dir": "./dtw_data/dnscapy",
+        "filenames": ["2018-03-29-19-06-25"],
+        "class_type": "1"
+    },
+    {
+        "name": "iodine",
+        "input_dir": "./dtw_data/iodine",
+        "filenames": ["2018-03-19-19-06-24"],
+        "class_type": "1"
+    },
+    {
+        "name": "plain",
+        "input_dir": "./dtw_data/plain",
+        "filenames": ["2018-03-19-19-34-33"],
+        "class_type": "1"
+    },
+    {
+        "name": "tuns",
+        "input_dir": "./dtw_data/tuns",
+        "filenames": ["2018-03-30-09-40-10"],
+        "class_type": "1"
+    }
+]
+
 
 def multidimensional_to_numpy(s):
     dimensions = [1, len(s)]
