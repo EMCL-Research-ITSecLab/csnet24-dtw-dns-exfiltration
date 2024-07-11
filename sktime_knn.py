@@ -3,7 +3,8 @@ import joblib
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-from sktime.classification.hybrid import HIVECOTEV2
+from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
+from sktime.dists_kernels import FlatDist, ScipyDist
 
 from dtw_utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar
 
@@ -43,7 +44,8 @@ if __name__ == "__main__":
                 X, y, test_size=0.30, random_state=42, stratify=y
             )
             
-            clf = HIVECOTEV2(n_jobs=-1, verbose=1)
+            eucl_dist = FlatDist(ScipyDist())
+            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
             clf.fit(X_train, y_train)
             
             joblib.dump(clf, f"models/sktime_knn_{ti['time_interval_name']}_{ts_type}.pickle")
@@ -100,5 +102,5 @@ if __name__ == "__main__":
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
             
-            with open("result_hivecotev2.json", "a") as f:
+            with open("result_knn.json", "a") as f:
                 f.write(json.dumps(result) + "\n")
