@@ -65,11 +65,10 @@ if __name__ == "__main__":
     files = glob.glob("./models/xgboost_model_*.pickle")
     for file in files:
         models.append(joblib.load(file))
-    
+
     xtest = [np.concatenate(xtest)]
     ytest = [np.concatenate(ytest)]
     ensemble_reports, ensemble_cms, ensemble_preds = make_ensemble_preds(
         xtest, ytest, models
     )
     print(ensemble_reports)
-        

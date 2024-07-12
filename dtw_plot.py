@@ -40,6 +40,7 @@ def plot_neighbours(X, y, type: str):
     plt.show()
     plt.clf()
 
+
 def plot_distribution(X, y, type: str):
     """Plots data distribution of NumPy Arrays
 
@@ -62,6 +63,7 @@ def plot_distribution(X, y, type: str):
     plt.savefig(f"figs/{type}_distribution_data.png")
     plt.show()
     plt.clf()
+
 
 def plot_path_manual(ds_name: str, X: np.asarray):
     # the length of the time-series
@@ -104,6 +106,7 @@ def plot_path_manual(ds_name: str, X: np.asarray):
     plt.savefig(f"dtw_path.pdf")
     plt.show()
     plt.clf()
+
 
 def plot_dtw_path(X, y, type: str):
     """Plots DTW Path

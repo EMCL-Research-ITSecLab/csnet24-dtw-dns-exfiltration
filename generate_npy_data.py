@@ -24,7 +24,9 @@ def group_data(input_dir, class_type, interval="1s", length=5):
         ).with_columns(
             [
                 (pl.lit(class_type)).alias("class"),
-                (pl.col("timestamp").str.strptime(pl.Datetime).cast(pl.Datetime)).name.keep()
+                (
+                    pl.col("timestamp").str.strptime(pl.Datetime).cast(pl.Datetime)
+                ).name.keep(),
             ]
         )
 
@@ -89,15 +91,27 @@ if __name__ == "__main__":
                 conf["input_dir"],
                 conf["class_type"],
                 interval=ti["time_interval"],
-                length=ti["minimum_length"]
+                length=ti["minimum_length"],
             )
-            
+
             print(f"Finished converting: {conf['name']} for {ti['time_interval_name']}")
 
-            np.save(f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_entropy.npy", np.array(X_ent))
-            np.save(f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_entropy.npy", np.array(y_ent))
+            np.save(
+                f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_entropy.npy",
+                np.array(X_ent),
+            )
+            np.save(
+                f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_entropy.npy",
+                np.array(y_ent),
+            )
 
-            np.save(f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_packet_size.npy", np.array(X_packet_size))
-            np.save(f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_packet_size.npy", np.array(y_packet_size))
-            
+            np.save(
+                f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_packet_size.npy",
+                np.array(X_packet_size),
+            )
+            np.save(
+                f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_packet_size.npy",
+                np.array(y_packet_size),
+            )
+
             print(f"Done: {conf['name']} for {ti['time_interval_name']}")

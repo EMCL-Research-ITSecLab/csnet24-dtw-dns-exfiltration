@@ -6,34 +6,35 @@ from sktime.classification.deep_learning import LSTMFCNClassifier
 from sktime.classification.hybrid import HIVECOTEV2
 from sktime.classification.deep_learning import LSTMFCNClassifier
 
-from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar, load_dataset
+from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr, fttar, load_dataset
+
 
 def train(name, model):
-    ts_types = ["univariate", "mutlivariate"]
-
-    for ts in ts_types:
+    for ts in TS_TYPE:
         for ti in TIME_INTERVAL_CONFIG:
             result = dict()
-            
-            result["time_interval"] = ti['time_interval_name']
+
+            result["time_interval"] = ti["time_interval_name"]
             result["ts_type"] = ts
-            
+
             print(f"Run analysis on data: {ti['time_interval_name']} for {ts}")
-            
-            X, y = load_dataset(ti['time_interval_name'], ts_type=ts)
-            
+
+            X, y = load_dataset(ti["time_interval_name"], ts_type=ts)
+
             print(f"Data has shape: {X.shape}")
-            
+
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=42, stratify=y
             )
-            
+
             # TODO Train model + hyperparam.
             clf = model(verbose=0, n_epochs=10, lstm_size=12)
             clf.fit(X_train, y_train)
-            
-            joblib.dump(clf, f"models/sktime_lstm_{ti['time_interval_name']}_{ts}.pickle")
-            
+
+            joblib.dump(
+                clf, f"models/sktime_lstm_{ti['time_interval_name']}_{ts}.pickle"
+            )
+
             print("Predicting test set...")
             result["test"] = {}
             y_pred = clf.predict(X_test)
@@ -46,17 +47,19 @@ def train(name, model):
             result["test"]["fttar"] = fttar_test
             result["test"]["fpr"] = fpr_test
             result["test"]["fdr"] = fdr_test
-            
+
             print(report)
             print(f"FTTAR: {fttar_test}")
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
-                        
+
             print("Predicting production set...")
             result["prod"] = {}
-            
-            X_new, y_new = load_dataset(ti['time_interval_name'], ts_type=ts, data=HEICLOUD_DATA)
-            
+
+            X_new, y_new = load_dataset(
+                ti["time_interval_name"], ts_type=ts, data=HEICLOUD_DATA
+            )
+
             y_pred = clf.predict(X_new)
             report = classification_report(y_new, y_pred, output_dict=True)
             fttar_test = fttar(y_new, y_pred)
@@ -67,19 +70,20 @@ def train(name, model):
             result["prod"]["fttar"] = fttar_test
             result["prod"]["fpr"] = fpr_test
             result["prod"]["fdr"] = fdr_test
-            
+
             print(report)
             print(f"FTTAR: {fttar_test}")
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
-            
+
             with open(f"result_{name}.json", "a") as f:
                 f.write(json.dumps(result) + "\n")
 
+
 if __name__ == "__main__":
-    train(model = LSTMFCNClassifier)
-    
+    train(model=LSTMFCNClassifier)
+
     eucl_dist = FlatDist(ScipyDist())
     clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
-    
+
     HIVECOTEV2(n_jobs=-1, verbose=1)

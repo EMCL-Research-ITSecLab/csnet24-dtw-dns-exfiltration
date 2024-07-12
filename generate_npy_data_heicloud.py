@@ -134,15 +134,27 @@ if __name__ == "__main__":
                 [day],
                 "0",
                 interval=ti["time_interval"],
-                length=ti["minimum_length"]
+                length=ti["minimum_length"],
             )
-            
-            print(f"Finished converting: {day} for {ti['time_interval']}")
-            
-            np.save(f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_entropy.npy", np.array(X_ent))
-            np.save(f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_entropy.npy", np.array(y_ent))
 
-            np.save(f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_packet_size.npy", np.array(X_packet_size))
-            np.save(f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_packet_size.npy", np.array(y_packet_size))
-            
+            print(f"Finished converting: {day} for {ti['time_interval']}")
+
+            np.save(
+                f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_entropy.npy",
+                np.array(X_ent),
+            )
+            np.save(
+                f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_entropy.npy",
+                np.array(y_ent),
+            )
+
+            np.save(
+                f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_packet_size.npy",
+                np.array(X_packet_size),
+            )
+            np.save(
+                f"dtw_data_npy/y_{day}_{ti['time_interval_name']}_packet_size.npy",
+                np.array(y_packet_size),
+            )
+
             print(f"Done: {day} for {ti['time_interval']}")
