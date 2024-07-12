@@ -1,5 +1,6 @@
 import numpy as np
 import polars as pl
+import glob
 
 from dtw_utils import DATA_CONFIG, TIME_INTERVAL_CONFIG
 
@@ -7,23 +8,26 @@ CONSTANT_CLASS_MALICIOUS = [2]
 CONSTANT_CLASS_BENIGN = [1]
 
 
-def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
+def group_data(input_dir, filenames, class_type, interval="1s", length=5):
     X_ent = []
     y_ent = []
 
     X_packet_size = []
     y_packet_size = []
-    for file in filenames:
+    for file in glob.glob(f"{input_dir}/*.csv"):
+        print(file)
         df = pl.read_csv(
-            f"{input_dir}/{file}.csv",
+            file,
             has_header=True,
             separator=",",
-            try_parse_dates=True,
+            try_parse_dates=False,
         ).with_columns(
             [
                 (pl.lit(class_type)).alias("class"),
+                (pl.col("timestamp").str.strptime(pl.Datetime).cast(pl.Datetime)).name.keep()
             ]
         )
+
         df: pl.DataFrame = (
             df.sort("timestamp")
             .group_by_dynamic(
@@ -53,12 +57,12 @@ def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
         x = all_dates.join(
             df, how="left", on=["src_ip", "class", "timestamp"]
         ).fill_null(0)
-
+        print(x)
         for frame in x.iter_slices(n_rows=length):
             if (
                 frame["entropy"].sum() > 0
                 and frame["entropy"].len() > length - 1
-                and frame["entropy"].to_list().count(0) < (length * 0.6)
+                # and frame["entropy"].to_list().count(0) < (length * 0.6)
             ):
                 X_ent.append(frame.select(["entropy"]).to_numpy().reshape(-1))
                 if class_type == "0":
@@ -79,8 +83,8 @@ def group_cic_data(input_dir, filenames, class_type, interval="1s", length=5):
 
 if __name__ == "__main__":
     for ti in TIME_INTERVAL_CONFIG:
-        print(f"Start converting: cic for {ti['time_interval']}")
-        X_ent_cicm, y_ent_cicm, X_packet_size_cicm, y_packet_size_cicm = group_cic_data(
+        print(f"Start converting: cic for {ti['time_interval_name']}")
+        X_ent_cicm, y_ent_cicm, X_packet_size_cicm, y_packet_size_cicm = group_data(
             "./dtw_data/cic/attack",
             [
                 "heavy_image",
@@ -101,7 +105,7 @@ if __name__ == "__main__":
             length=ti["minimum_length"]
         )
 
-        X_ent_cicb, y_ent_cicb, X_packet_size_cicb, y_packet_size_cicb = group_cic_data(
+        X_ent_cicb, y_ent_cicb, X_packet_size_cicb, y_packet_size_cicb = group_data(
             "./dtw_data/cic/benign",
             [
                 "benign_heavy_1",
@@ -120,7 +124,7 @@ if __name__ == "__main__":
         X_packet_size = X_packet_size_cicb + X_packet_size_cicm
         y_packet_size = y_packet_size_cicb + y_packet_size_cicm
         
-        print(f"Finished converting: cic for {ti['time_interval']}")
+        print(f"Finished converting: cic for {ti['time_interval_name']}")
 
         np.save(f"dtw_data_npy/x_cic_{ti['time_interval_name']}_entropy.npy", np.array(X_ent))
         np.save(f"dtw_data_npy/y_cic_{ti['time_interval_name']}_entropy.npy", np.array(y_ent))
@@ -128,11 +132,11 @@ if __name__ == "__main__":
         np.save(f"dtw_data_npy/x_cic_{ti['time_interval_name']}_packet_size.npy", np.array(X_packet_size))
         np.save(f"dtw_data_npy/y_cic_{ti['time_interval_name']}_packet_size.npy", np.array(y_packet_size))
         
-        print(f"Done: cic for {ti['time_interval']}")
+        print(f"Done: cic for {ti['time_interval_name']}")
         
         for conf in DATA_CONFIG:
-            print(f"Start converting: {conf['name']} for {ti['time_interval']}")
-            X_ent, y_ent, X_packet_size, y_packet_size = group_cic_data(
+            print(f"Start converting: {conf['name']} for {ti['time_interval_name']}")
+            X_ent, y_ent, X_packet_size, y_packet_size = group_data(
                 conf["input_dir"],
                 conf["filenames"],
                 conf["class_type"],
@@ -140,7 +144,7 @@ if __name__ == "__main__":
                 length=ti["minimum_length"]
             )
             
-            print(f"Finished converting: {conf['name']} for {ti['time_interval']}")
+            print(f"Finished converting: {conf['name']} for {ti['time_interval_name']}")
 
             np.save(f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_entropy.npy", np.array(X_ent))
             np.save(f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_entropy.npy", np.array(y_ent))
@@ -148,4 +152,4 @@ if __name__ == "__main__":
             np.save(f"dtw_data_npy/x_{conf['name']}_{ti['time_interval_name']}_packet_size.npy", np.array(X_packet_size))
             np.save(f"dtw_data_npy/y_{conf['name']}_{ti['time_interval_name']}_packet_size.npy", np.array(y_packet_size))
             
-            print(f"Done: {conf['name']} for {ti['time_interval']}")
+            print(f"Done: {conf['name']} for {ti['time_interval_name']}")

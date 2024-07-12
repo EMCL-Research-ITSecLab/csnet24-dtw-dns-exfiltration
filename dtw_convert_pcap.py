@@ -33,12 +33,12 @@ def convert_pcaps(input_dir, output_dir):
             for packet in dnsPackets:
                 if (
                     packet.haslayer(DNSQR)
-                    and (
-                        packet[DNSQR].qtype == 1
-                        or packet[DNSQR].qtype == 28
-                        or packet[DNSQR].qtype == 5
-                        or packet[DNSQR].qtype == 16
-                    )
+                    # and (
+                    #     packet[DNSQR].qtype == 1
+                    #     or packet[DNSQR].qtype == 28
+                    #     or packet[DNSQR].qtype == 5
+                    #     or packet[DNSQR].qtype == 16
+                    # )
                     and packet.dport == 53
                 ):
                     time = datetime.datetime.utcfromtimestamp(float(packet.time))

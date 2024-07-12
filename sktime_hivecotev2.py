@@ -68,7 +68,7 @@ if __name__ == "__main__":
             print(f"False Discovery Rate: {fdr_test}")
             
             print("Predicting production set...")
-            result["test"] = {}
+            result["prod"] = {}
             
             x_arr_new = []
             y_arr_new = []

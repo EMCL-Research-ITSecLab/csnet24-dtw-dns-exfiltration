@@ -5,10 +5,9 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sktime.classification.deep_learning import LSTMFCNClassifier
 
-from dtw_utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar
+from dtw_utils import DATA_CONFIG, HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar
 
 if __name__ == "__main__":
-    data_types = ["cic"]
     ts_type = ["univariate", "mutlivariate"]
 
     for ts_type in ts_type:
@@ -24,13 +23,18 @@ if __name__ == "__main__":
             y_arr = []
 
             # load data
-            for data_type in data_types:
-                y_arr.append(np.load(f"dtw_data_npy/y_{data_type}_{ti['time_interval_name']}_entropy.npy"))
+            for data_type in DATA_CONFIG:
+                y = np.load(f"dtw_data_npy/y_{data_type['name']}_{ti['time_interval_name']}_entropy.npy")
+                
                 if ts_type == "mutlivariate":
-                    X = np.stack([np.load(f"dtw_data_npy/x_{data_type}_{ti['time_interval_name']}_entropy.npy"),np.load(f"dtw_data_npy/x_{data_type}_{ti['time_interval_name']}_packet_size.npy")], axis=2)
+                    X = np.stack([np.load(f"dtw_data_npy/x_{data_type['name']}_{ti['time_interval_name']}_entropy.npy"),np.load(f"dtw_data_npy/x_{data_type['name']}_{ti['time_interval_name']}_packet_size.npy")], axis=2)
                 else: 
-                    X = np.load(f"dtw_data_npy/x_{data_type}_{ti['time_interval_name']}_entropy.npy")
-                x_arr.append(X)
+                    X = np.load(f"dtw_data_npy/x_{data_type['name']}_{ti['time_interval_name']}_entropy.npy")
+                if X.size != 0:
+                    y_arr.append(y)
+                    x_arr.append(X)
+                else:
+                    print(f"WARNING: {data_type['name']} for {ti['time_interval_name']} is empty!")
 
             X = np.concatenate(x_arr)
             y = np.concatenate(y_arr)
@@ -46,6 +50,8 @@ if __name__ == "__main__":
             
             joblib.dump(clf, f"models/sktime_lstm_{ti['time_interval_name']}_{ts_type}.pickle")
             
+            print("Predicting test set...")
+            result["test"] = {}
             y_pred = clf.predict(X_test)
             report = classification_report(y_test, y_pred, output_dict=True)
             fttar_test = fttar(y_test, y_pred)
@@ -63,7 +69,7 @@ if __name__ == "__main__":
             print(f"False Discovery Rate: {fdr_test}")
                         
             print("Predicting production set...")
-            result["test"] = {}
+            result["prod"] = {}
             
             x_arr_new = []
             y_arr_new = []
