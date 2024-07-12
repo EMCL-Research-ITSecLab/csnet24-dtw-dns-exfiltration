@@ -40,7 +40,6 @@ def plot_neighbours(X, y, type: str):
     plt.show()
     plt.clf()
 
-
 def plot_distribution(X, y, type: str):
     """Plots data distribution of NumPy Arrays
 
@@ -63,35 +62,6 @@ def plot_distribution(X, y, type: str):
     plt.savefig(f"figs/{type}_distribution_data.png")
     plt.show()
     plt.clf()
-
-    # testy = [0, 1, 2, 3, 4]
-    # # ax = plt.axes()
-    # # ax.xaxis.grid(which="both")
-    # # ax.set_ylabel("Amplitude")
-    # # ax.set_xlabel("Time")
-    # ds = np.array([testy for i in range(0, X.shape[0])])
-    # # Number of sample points
-    # N = 598
-    # # sample spacing
-    # T = 1 / 10
-    # yf = fft(X)
-    # xf = fftfreq(N, T)[:N//2]
-    
-    # print(yf.shape)
-    # print(xf.shape)
-
-    # print(np.abs(yf))
-    # print(xf)
-
-
-    # plt.plot(xf, np.abs(yf[:N//2]))
-
-    # plt.grid() 
-    # plt.minorticks_on()
-    # plt.savefig(f"figs/{type}_distribution_data.pdf")
-    # plt.show()
-    # plt.clf()
-
 
 def plot_path_manual(ds_name: str, X: np.asarray):
     # the length of the time-series
@@ -134,7 +104,6 @@ def plot_path_manual(ds_name: str, X: np.asarray):
     plt.savefig(f"dtw_path.pdf")
     plt.show()
     plt.clf()
-
 
 def plot_dtw_path(X, y, type: str):
     """Plots DTW Path

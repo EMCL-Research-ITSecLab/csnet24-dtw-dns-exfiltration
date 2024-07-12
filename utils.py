@@ -1,6 +1,7 @@
 import math
 from itertools import pairwise
 
+import numpy as np
 import polars as pl
 
 HEICLOUD_DATA = [
@@ -304,3 +305,25 @@ def shannon_entropy(string):
     entropy = -sum([p * math.log(p) / math.log(2.0) for p in prob])
 
     return entropy
+
+def load_dataset(time_interval_name, ts_type: str = "univariate", dt: str = "entropy", data = DATA_CONFIG):
+    x_arr = []
+    y_arr = []
+    for data_type in data:
+        y = np.load(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")
+        
+        if ts_type == "mutlivariate":
+            # dt flag not used, because both are loaded anyways
+            X = np.stack([np.load(f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_entropy.npy"),np.load(f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_packet_size.npy")], axis=1)
+        else: 
+            X = np.load(f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_{dt}.npy")
+        if X.size != 0:
+            y_arr.append(y)
+            x_arr.append(X)
+        else:
+            print(f"WARNING: {data_type['name']} for {time_interval_name} is empty!")
+    X = np.concatenate(x_arr)
+    y = np.concatenate(y_arr)
+    y = y.reshape(-1)
+    
+    return X, y
