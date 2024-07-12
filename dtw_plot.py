@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from torch import cdist
 from tslearn.neighbors import KNeighborsTimeSeries
 
-from dtw_utils import HEICLOUD_DATA
+from utils import HEICLOUD_DATA
 
 
 def plot_neighbours(X, y, type: str):
@@ -47,47 +47,50 @@ def plot_distribution(X, y, type: str):
     Args:
         X (numpy.array): NumPy Array
     """
-    testy = [0, 1, 2, 3, 4]
-    # ax = plt.axes()
-    # ax.xaxis.grid(which="both")
-    # ax.set_ylabel("Amplitude")
-    # ax.set_xlabel("Time")
-    ds = np.array([testy for i in range(0, X.shape[0])])
-    # Number of sample points
+    ax = plt.axes()
+    ax.xaxis.grid(which="both")
+    ax.set_ylabel("Entropy")
+    ax.set_xlabel("Time")
+    for idx, j in enumerate(X):
+        if y[idx] == 1:
+            c = "r"
+        else:
+            c = "b"
 
-    N = 600
-
-    # sample spacing
-
-    T = 1.0 / 10
-    yf = fft(X)
-
-    # xf = fftfreq(N, T)[:N//2]
-    xf = fftfreq(N, T)[:N//2]
-    
-    print(xf)
-    print(yf)
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(xf, np.abs(yf[:N//2]))
-
-    plt.grid()
-
-    plt.show()    
-    # for idx, (j,i) in enumerate(zip(X,ds)):
-    #     if y[idx] == 1:
-    #         c = "r"
-    #     else:
-    #         c = "b"
-    #     yt
-    #     # interp2 = interpolate.interp1d(j, i, kind = "slinear")
-    #     plt.plot(j, linewidth=0.1, color=c)
+        plt.plot(j, linewidth=0.1, color=c)
 
     plt.minorticks_on()
-    plt.savefig(f"figs/{type}_distribution_data.pdf")
+    plt.savefig(f"figs/{type}_distribution_data.png")
     plt.show()
     plt.clf()
+
+    # testy = [0, 1, 2, 3, 4]
+    # # ax = plt.axes()
+    # # ax.xaxis.grid(which="both")
+    # # ax.set_ylabel("Amplitude")
+    # # ax.set_xlabel("Time")
+    # ds = np.array([testy for i in range(0, X.shape[0])])
+    # # Number of sample points
+    # N = 598
+    # # sample spacing
+    # T = 1 / 10
+    # yf = fft(X)
+    # xf = fftfreq(N, T)[:N//2]
+    
+    # print(yf.shape)
+    # print(xf.shape)
+
+    # print(np.abs(yf))
+    # print(xf)
+
+
+    # plt.plot(xf, np.abs(yf[:N//2]))
+
+    # plt.grid() 
+    # plt.minorticks_on()
+    # plt.savefig(f"figs/{type}_distribution_data.pdf")
+    # plt.show()
+    # plt.clf()
 
 
 def plot_path_manual(ds_name: str, X: np.asarray):

@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sktime.classification.hybrid import HIVECOTEV2
 
-from dtw_utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar
+from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, fdr, fpr, fttar
 
 
 if __name__ == "__main__":

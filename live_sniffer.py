@@ -10,7 +10,7 @@ from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import IP
 from scapy.layers.inet6 import IPv6
 
-from dtw_utils import shannon_entropy
+from utils import shannon_entropy
 
 
 class Sniffer(Thread):

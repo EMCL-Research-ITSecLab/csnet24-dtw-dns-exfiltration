@@ -3,7 +3,7 @@ import math
 import numpy as np
 import polars as pl
 
-from dtw_utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG
+from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG
 
 CONSTANT_CLASS = [1]
 
