@@ -4,7 +4,8 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sktime.classification.deep_learning import LSTMFCNClassifier
 from sktime.classification.hybrid import HIVECOTEV2
-from sktime.classification.deep_learning import LSTMFCNClassifier
+from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
+from sktime.dists_kernels import FlatDist, ScipyDist
 
 from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr, fttar, load_dataset
 
@@ -82,8 +83,8 @@ def train(name, model):
 
 if __name__ == "__main__":
     train(model=LSTMFCNClassifier)
+    # TODO How to train?
+    # eucl_dist = FlatDist(ScipyDist())
+    # clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
 
-    eucl_dist = FlatDist(ScipyDist())
-    clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
-
-    HIVECOTEV2(n_jobs=-1, verbose=1)
+    # HIVECOTEV2(n_jobs=-1, verbose=1)

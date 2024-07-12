@@ -20,12 +20,23 @@ if __name__ == "__main__":
             X2 = X2.reshape(-1)
             X2 = X2[X2 > 0]
 
+            
             sns.histplot(X1, bins=30, kde=True, stat="probability")
             sns.histplot(X2, bins=30, kde=True, stat="probability")
             plt.xlabel(
-                "Shannon Entropy of Query" if dt_type == "entropy" else "Packet Size"
+                "Shannon Entropy of Query"
+                if dt_type == "entropy"
+                else "Packet Size of Query"
             )
             plt.ylabel("Probability")
-            plt.title(f"Distribution of Requests for {ti['time_interval_name']}")
-            plt.xticks(range(0, 8, 1) if dt_type == "entropy" else range(0, 255, 32))
+            plt.title(f"Distribution of Requests")
+            plt.xticks(range(2, 6, 1) if dt_type == "entropy" else range(16, 300, 64))
+            plt.xlim((2, 6) if dt_type == "entropy" else (16, 300))
+            plt.yticks(np.arange(0, 0.6, step=0.1))
+            plt.ylim(0, 0.6)
+            plt.legend(["Benign", "Malicious"], title="Types")
             plt.show()
+            plt.savefig(
+                f"figs/data_distribution_{ti['time_interval_name']}_{dt_type}.pdf", bbox_inches='tight'
+            )
+            plt.clf()
