@@ -1,6 +1,6 @@
 import math
 from itertools import pairwise
-
+from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import polars as pl
 
@@ -269,6 +269,8 @@ def load_dataset(
                 f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_{dt}.npy"
             )
         if X.size != 0:
+
+            X = MinMaxScaler().fit_transform(X)
             y_arr.append(y)
             x_arr.append(X)
         else:
