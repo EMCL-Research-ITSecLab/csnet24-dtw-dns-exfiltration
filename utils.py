@@ -63,11 +63,11 @@ TIME_INTERVAL_CONFIG = [
 
 DATA_CONFIG = [
     {"name": "cic-malicious", "input_dir": "./dtw_data/cic/attack", "class_type": "1"},
-    {"name": "cic-malicious", "input_dir": "./dtw_data/cic/benign", "class_type": "1"},
-    {"name": "dns2tcp", "input_dir": "./dtw_data/dns2tcp", "class_type": "1"},
-    {"name": "dnscapy", "input_dir": "./dtw_data/dnscapy", "class_type": "1"},
-    {"name": "iodine", "input_dir": "./dtw_data/iodine", "class_type": "1"},
-    {"name": "plain", "input_dir": "./dtw_data/plain", "class_type": "0"},
+    {"name": "cic-malicious", "input_dir": "./dtw_data/cic/benign", "class_type": "0"},
+    # {"name": "dns2tcp", "input_dir": "./dtw_data/dns2tcp", "class_type": "1"},
+    # {"name": "dnscapy", "input_dir": "./dtw_data/dnscapy", "class_type": "1"},
+    # {"name": "iodine", "input_dir": "./dtw_data/iodine", "class_type": "1"},
+    # {"name": "plain", "input_dir": "./dtw_data/plain", "class_type": "0"},
     {"name": "normal", "input_dir": "./dtw_data/normal/normal", "class_type": "0"},
     {
         "name": "crossEndPoint-AndIodine-MX",
@@ -270,13 +270,14 @@ def load_dataset(
             )
         if X.size != 0:
 
-            X = MinMaxScaler().fit_transform(X)
+            # X = MinMaxScaler().fit_transform(X)
             y_arr.append(y)
             x_arr.append(X)
         else:
             print(f"WARNING: {data_type['name']} for {time_interval_name} is empty!")
+
     X = np.concatenate(x_arr)
     y = np.concatenate(y_arr)
     y = y.reshape(-1)
 
-    return X, y
+    return X, y, x_arr, y_arr

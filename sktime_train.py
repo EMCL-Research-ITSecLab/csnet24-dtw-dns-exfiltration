@@ -20,7 +20,7 @@ def train(name, model):
 
             print(f"Run analysis on data: {ti['time_interval_name']} for {ts}")
 
-            X, y = load_dataset(ti["time_interval_name"], ts_type=ts)
+            X, y, _, _ = load_dataset(ti["time_interval_name"], ts_type=ts)
 
             print(f"Data has shape: {X.shape}")
 
@@ -86,5 +86,6 @@ if __name__ == "__main__":
     # TODO How to train?
     # eucl_dist = FlatDist(ScipyDist())
     # clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
+    # clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance="dtw")
 
     # HIVECOTEV2(n_jobs=-1, verbose=1)

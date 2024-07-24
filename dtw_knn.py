@@ -12,7 +12,7 @@ if __name__ == "__main__":
         for ti in TIME_INTERVAL_CONFIG:
             result = dict()
 
-            X, y = load_dataset(ti["time_interval_name"], ts_type=ts)
+            X, y, _, _ = load_dataset(ti["time_interval_name"], ts_type=ts)
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=42, stratify=y
