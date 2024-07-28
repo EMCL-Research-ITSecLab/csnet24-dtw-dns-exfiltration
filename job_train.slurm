@@ -6,10 +6,10 @@
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
 
-source /usr/local/Miniconda3-py39_4.10.3-Linux-x86_64/etc/profile.d/conda.sh
+source /usr/local/Miniconda3-py311_24.1.2-0-Linux-x86_64/etc/profile.d/conda.sh
 
-conda create --name ssci
-conda activate ssci
+conda create --name csnet24
+conda activate csnet24
 
 pip install -r requirements.txt
 
