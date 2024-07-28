@@ -1,4 +1,5 @@
 import math
+import sys
 
 import numpy as np
 import polars as pl
@@ -127,12 +128,13 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
 
 
 if __name__ == "__main__":
+    path = sys.argv[1]
     for ti in TIME_INTERVAL_CONFIG:
         for data in HEICLOUD_DATA:
             day = data["name"]
             print(f"Start converting: {day} for {ti['time_interval_name']}")
             X_ent, y_ent, X_packet_size, y_packet_size = group_heicloud_data(
-                "/home/smachmeier/results_2024-01-15_45d/",
+                path,
                 [day],
                 "0",
                 interval=ti["time_interval"],
