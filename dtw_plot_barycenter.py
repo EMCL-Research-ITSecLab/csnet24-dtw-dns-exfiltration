@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
-from tslearn.barycenters import (dtw_barycenter_averaging,
-                                 dtw_barycenter_averaging_subgradient)
+from tslearn.barycenters import (
+    dtw_barycenter_averaging,
+    dtw_barycenter_averaging_subgradient,
+)
 
 from utils import TIME_INTERVAL_CONFIG, load_dataset
 
@@ -37,6 +39,7 @@ def plot_dtw_path(x, y, type: str):
     plt.savefig(f"figs/cluster_{type}.pdf")
     ax1.cla()
     plt.clf()
+
 
 if __name__ == "__main__":
     for ti in TIME_INTERVAL_CONFIG:

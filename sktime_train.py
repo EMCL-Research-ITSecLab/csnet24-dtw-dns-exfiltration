@@ -9,8 +9,15 @@ from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
 from sktime.classification.hybrid import HIVECOTEV2
 from sktime.dists_kernels import FlatDist, ScipyDist
 
-from utils import (HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr,
-                   fttar, load_dataset)
+from utils import (
+    HEICLOUD_DATA,
+    TIME_INTERVAL_CONFIG,
+    TS_TYPE,
+    fdr,
+    fpr,
+    fttar,
+    load_dataset,
+)
 
 
 def train(name, clf):
@@ -109,7 +116,7 @@ if __name__ == "__main__":
                 distance="dtw",
                 distance_params={
                     "global_constraint": "itakura",
-                    "itakura_max_slope": 2.,
+                    "itakura_max_slope": 2.0,
                 },
             )
         case _:

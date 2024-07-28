@@ -73,7 +73,7 @@ if __name__ == "__main__":
         )
 
         cluster_count = math.ceil(math.sqrt(len(X)))
-        
+
         plot_dtw_path(X, y, ti["time_interval_name"])
 
         km = TimeSeriesKMeans(n_clusters=cluster_count, metric="dtw")

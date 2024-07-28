@@ -7,7 +7,7 @@ from utils import TIME_INTERVAL_CONFIG, load_dataset
 
 
 def plot_soft_dtw_path(s_y1, s_y2, sz, type: str):
-    path, sim = metrics.soft_dtw_alignment(s_y1, s_y2,gamma=1)
+    path, sim = metrics.soft_dtw_alignment(s_y1, s_y2, gamma=1)
     plt.figure(1, figsize=(8, 8))
 
     # definitions for the axes
@@ -27,15 +27,15 @@ def plot_soft_dtw_path(s_y1, s_y2, sz, type: str):
 
     mat = cdist(s_y1, s_y2)
 
-    ax_gram.imshow(path, origin='lower')
+    ax_gram.imshow(path, origin="lower")
     ax_gram.axis("off")
     ax_gram.autoscale(False)
 
-    ax_s_x.plot(np.arange(sz), s_y2, "b-", linewidth=3.)
+    ax_s_x.plot(np.arange(sz), s_y2, "b-", linewidth=3.0)
     ax_s_x.axis("off")
     ax_s_x.set_xlim((0, sz - 1))
 
-    ax_s_y.plot(- s_y1, np.arange(sz), "b-", linewidth=3.)
+    ax_s_y.plot(-s_y1, np.arange(sz), "b-", linewidth=3.0)
     ax_s_y.axis("off")
     ax_s_y.set_ylim((0, sz - 1))
 
@@ -44,8 +44,11 @@ def plot_soft_dtw_path(s_y1, s_y2, sz, type: str):
     plt.show()
     plt.clf()
 
-def plot_dtw_path(s_y1, s_y2, sz, type: str):  
-    path, sim = metrics.dtw_path(s_y1, s_y2) # global_constraint="itakura", itakura_max_slope=2. # global_constraint="itakura", itakura_max_slope=2.
+
+def plot_dtw_path(s_y1, s_y2, sz, type: str):
+    path, sim = metrics.dtw_path(
+        s_y1, s_y2
+    )  # global_constraint="itakura", itakura_max_slope=2. # global_constraint="itakura", itakura_max_slope=2.
     plt.figure(1, figsize=(8, 8))
 
     # definitions for the axes
@@ -65,17 +68,16 @@ def plot_dtw_path(s_y1, s_y2, sz, type: str):
 
     mat = cdist(s_y1, s_y2)
 
-    ax_gram.imshow(mat, origin='lower')
+    ax_gram.imshow(mat, origin="lower")
     ax_gram.axis("off")
     ax_gram.autoscale(False)
-    ax_gram.plot([j for (i, j) in path], [i for (i, j) in path], "w-",
-                linewidth=3.)
+    ax_gram.plot([j for (i, j) in path], [i for (i, j) in path], "w-", linewidth=3.0)
 
-    ax_s_x.plot(np.arange(sz), s_y2, "b-", linewidth=3.)
+    ax_s_x.plot(np.arange(sz), s_y2, "b-", linewidth=3.0)
     ax_s_x.axis("off")
     ax_s_x.set_xlim((0, sz - 1))
 
-    ax_s_y.plot(- s_y1, np.arange(sz), "b-", linewidth=3.)
+    ax_s_y.plot(-s_y1, np.arange(sz), "b-", linewidth=3.0)
     ax_s_y.axis("off")
     ax_s_y.set_ylim((0, sz - 1))
 

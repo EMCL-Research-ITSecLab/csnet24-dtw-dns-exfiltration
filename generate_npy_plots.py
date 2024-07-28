@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
             X1 = X[np.where(y == 1)[0]]
             X2 = X[np.where(y == 2)[0]]
-            
+
             # Organize Data - from question
             X1 = X1.reshape(-1)
             X1 = X1[X1 > 0]
@@ -19,7 +19,6 @@ if __name__ == "__main__":
             X2 = X2.reshape(-1)
             X2 = X2[X2 > 0]
 
-            
             sns.histplot(X1, bins=30, kde=True, stat="probability")
             sns.histplot(X2, bins=30, kde=True, stat="probability")
             plt.xlabel(
@@ -36,6 +35,7 @@ if __name__ == "__main__":
             plt.legend(["Benign", "Malicious"], title="Types")
             plt.show()
             plt.savefig(
-                f"figs/data_distribution_{ti['time_interval_name']}_{dt_type}.pdf", bbox_inches='tight'
+                f"figs/data_distribution_{ti['time_interval_name']}_{dt_type}.pdf",
+                bbox_inches="tight",
             )
             plt.clf()

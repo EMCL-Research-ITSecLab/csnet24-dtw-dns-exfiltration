@@ -20,8 +20,8 @@ if __name__ == "__main__":
         network.show_distance_matrix()
         plt.savefig(f"figs/som_utmatrix_{ti['time_interval_name']}.pdf")
         plt.clf()
-        
-        plt.tight_layout()  
+
+        plt.tight_layout()
         network.show_winner_matrix()
         plt.savefig(f"figs/som_winner_{ti['time_interval_name']}.pdf")
         plt.clf()
