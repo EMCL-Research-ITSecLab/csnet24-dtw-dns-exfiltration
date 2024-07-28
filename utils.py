@@ -280,7 +280,6 @@ def load_dataset(
     x_arr = []
     y_arr = []
     for data_type in data:
-        print(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")
         y = np.load(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")
 
         if ts_type == "mutlivariate":
@@ -302,7 +301,7 @@ def load_dataset(
             )
         if X.size != 0:
 
-            # X = MinMaxScaler().fit_transform(X)
+            X = MinMaxScaler().fit_transform(X)
             y_arr.append(y)
             x_arr.append(X)
         else:
