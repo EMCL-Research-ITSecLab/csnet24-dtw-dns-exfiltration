@@ -4,6 +4,8 @@ polars
 numpy
 joblib
 torch
+sktime
+tensorflow
 
 scapy
 fitter
