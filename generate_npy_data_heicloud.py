@@ -53,7 +53,8 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
                             lambda x: [
                                 float(str(x).count(c)) / len(str(x))
                                 for c in dict.fromkeys(list(str(x)))
-                            ]
+                            ],
+                            return_dtype=list[float]
                         )
                     ).alias("prob"),
                 ]
@@ -75,7 +76,7 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
             x: pl.DataFrame = (
                 x.sort("timestamp")
                 .group_by_dynamic(
-                    "timestamp", every=interval, closed="right", by=["src_ip", "class"]
+                    "timestamp", every=interval, closed="right", group_by=["src_ip", "class"]
                 )
                 .agg(
                     pl.col("entropy").mean(),
