@@ -1,6 +1,7 @@
+import glob
+
 import numpy as np
 import polars as pl
-import glob
 
 from utils import DATA_CONFIG, TIME_INTERVAL_CONFIG
 

@@ -1,16 +1,19 @@
 import json
+import sys
+
 import joblib
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sktime.classification.deep_learning import LSTMFCNClassifier
-from sktime.classification.hybrid import HIVECOTEV2
 from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
+from sktime.classification.hybrid import HIVECOTEV2
 from sktime.dists_kernels import FlatDist, ScipyDist
 
-from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr, fttar, load_dataset
+from utils import (HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr,
+                   fttar, load_dataset)
 
 
-def train(name, model):
+def train(name, clf):
     for ts in TS_TYPE:
         for ti in TIME_INTERVAL_CONFIG:
             result = dict()
@@ -28,12 +31,10 @@ def train(name, model):
                 X, y, test_size=0.2, random_state=42, stratify=y
             )
 
-            # TODO Train model + hyperparam.
-            clf = model(verbose=0, n_epochs=10, lstm_size=12)
             clf.fit(X_train, y_train)
 
             joblib.dump(
-                clf, f"models/sktime_lstm_{ti['time_interval_name']}_{ts}.pickle"
+                clf, f"models/model_{name}_{ti['time_interval_name']}_{ts}.pickle"
             )
 
             print("Predicting test set...")
@@ -77,15 +78,40 @@ def train(name, model):
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
 
-            with open(f"result_{name}.json", "a") as f:
+            with open(f"result_{name}_{ti['time_interval_name']}_{ts}.json", "a") as f:
                 f.write(json.dumps(result) + "\n")
 
 
 if __name__ == "__main__":
-    train(model=LSTMFCNClassifier)
-    # TODO How to train?
-    # eucl_dist = FlatDist(ScipyDist())
-    # clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
-    # clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance="dtw")
-
-    # HIVECOTEV2(n_jobs=-1, verbose=1)
+    name = sys.argv[1]
+    match name:
+        case "lstm":
+            clf = LSTMFCNClassifier(verbose=0, n_epochs=100)
+        case "hivecotev":
+            clf = HIVECOTEV2(n_jobs=-1, verbose=1)
+        case "knn-euclidean":
+            eucl_dist = FlatDist(ScipyDist())
+            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance=eucl_dist)
+        case "knn-dtw":
+            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, distance="dtw")
+        case "knn-dtw-sakoe":
+            clf = KNeighborsTimeSeriesClassifier(
+                n_neighbors=2,
+                distance="dtw",
+                distance_params={
+                    "global_constraint": "sakoe_chiba",
+                    "sakoe_chiba_radius": 3,
+                },
+            )
+        case "knn-dtw-itakura":
+            clf = KNeighborsTimeSeriesClassifier(
+                n_neighbors=2,
+                distance="dtw",
+                distance_params={
+                    "global_constraint": "itakura",
+                    "itakura_max_slope": 2.,
+                },
+            )
+        case _:
+            raise NotImplementedError(f"{name} not found")
+    train(name, clf)

@@ -1,8 +1,9 @@
 import math
 from itertools import pairwise
-from sklearn.preprocessing import MinMaxScaler
+
 import numpy as np
 import polars as pl
+from sklearn.preprocessing import MinMaxScaler
 
 TS_TYPE = ["univariate", "multivariate"]
 
@@ -57,8 +58,8 @@ HEICLOUD_DATA = [
 TIME_INTERVAL_CONFIG = [
     {"time_interval": "1s", "minimum_length": 15, "time_interval_name": "15s"},
     {"time_interval": "1s", "minimum_length": 30, "time_interval_name": "30s"},
+    {"time_interval": "1s", "minimum_length": 45, "time_interval_name": "45s"},
     {"time_interval": "1s", "minimum_length": 60, "time_interval_name": "1min"},
-    {"time_interval": "1s", "minimum_length": 90, "time_interval_name": "1.5min"},
 ]
 
 DATA_CONFIG = [

@@ -1,7 +1,8 @@
 import math
+
+import dtwsom
 import matplotlib.pyplot as plt
 from pyclustering.nnet.som import type_conn
-import dtwsom
 
 from utils import TIME_INTERVAL_CONFIG, load_dataset
 

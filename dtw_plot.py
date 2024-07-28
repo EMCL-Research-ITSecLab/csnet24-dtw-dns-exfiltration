@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from tslearn import metrics
 from scipy.spatial.distance import cdist
+from tslearn import metrics
 
 from utils import TIME_INTERVAL_CONFIG, load_dataset
+
 
 def plot_soft_dtw_path(s_y1, s_y2, sz, type: str):
     path, sim = metrics.soft_dtw_alignment(s_y1, s_y2,gamma=1)

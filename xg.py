@@ -1,7 +1,7 @@
-from collections import Counter
-
 import queue
 import threading
+from collections import Counter
+
 import joblib
 import numpy as np
 import torch

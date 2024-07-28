@@ -1,8 +1,8 @@
-import numpy as np
-from utils import TIME_INTERVAL_CONFIG, load_dataset
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
+import seaborn as sns
+
+from utils import TIME_INTERVAL_CONFIG, load_dataset
 
 if __name__ == "__main__":
     for dt_type in ["entropy", "packet_size"]:

@@ -1,11 +1,13 @@
 import json
+
 import joblib
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV, train_test_split
 from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 
-from utils import HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr, fttar, load_dataset
+from utils import (HEICLOUD_DATA, TIME_INTERVAL_CONFIG, TS_TYPE, fdr, fpr,
+                   fttar, load_dataset)
 
 if __name__ == "__main__":
     for ts in TS_TYPE:

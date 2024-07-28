@@ -15,7 +15,6 @@ from copy import deepcopy
 from datetime import datetime
 
 import dnslib as dns
-
 import exfiltration as exf
 
 DEBUG = None
