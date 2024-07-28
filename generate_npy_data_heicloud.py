@@ -87,7 +87,7 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
             # min_date = min_date.replace(minute=0, hour=0, second=0, microsecond=0)
 
             max_date = x.select(["timestamp"]).max().item()
-            # max_date = min_date.replace(minute=59, hour=23, second=59, microsecond=59)
+            # max_date = max_date.replace(minute=59, hour=23, second=59, microsecond=59)
 
             # We generate empty datetime with zero values in a time range of 6h
             datetimes = x.select(
@@ -108,7 +108,7 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
                 x, how="left", on=["src_ip", "class", "timestamp"]
             ).fill_null(0)
 
-            for frame in x.iter_slices(n_rows=5):
+            for frame in x.iter_slices(n_rows=length):
                 if (
                     frame["entropy"].sum() > 0
                     and frame["entropy"].len() > length - 1
@@ -127,8 +127,9 @@ def group_heicloud_data(input_dir, filenames, class_type, interval="1s", length=
 
 if __name__ == "__main__":
     for ti in TIME_INTERVAL_CONFIG:
-        for day in HEICLOUD_DATA:
-            print(f"Start converting: {day} for {ti['time_interval']}")
+        for data in HEICLOUD_DATA:
+            day = data["name"]
+            print(f"Start converting: {day} for {ti['time_interval_name']}")
             X_ent, y_ent, X_packet_size, y_packet_size = group_heicloud_data(
                 "/home/smachmeier/results_2024-01-15_45d/",
                 [day],
@@ -137,7 +138,7 @@ if __name__ == "__main__":
                 length=ti["minimum_length"],
             )
 
-            print(f"Finished converting: {day} for {ti['time_interval']}")
+            print(f"Finished converting: {day} for {ti['time_interval_name']}")
 
             np.save(
                 f"dtw_data_npy/x_{day}_{ti['time_interval_name']}_entropy.npy",
@@ -157,4 +158,4 @@ if __name__ == "__main__":
                 np.array(y_packet_size),
             )
 
-            print(f"Done: {day} for {ti['time_interval']}")
+            print(f"Done: {day} for {ti['time_interval_name']}")

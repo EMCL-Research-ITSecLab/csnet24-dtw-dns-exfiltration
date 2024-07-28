@@ -93,7 +93,7 @@ if __name__ == "__main__":
     name = sys.argv[1]
     match name:
         case "lstm":
-            clf = LSTMFCNClassifier(verbose=0, n_epochs=100)
+            clf = LSTMFCNClassifier(verbose=1, n_epochs=10)
         case "hivecotev":
             clf = HIVECOTEV2(n_jobs=-1, verbose=1)
         case "knn-euclidean":
