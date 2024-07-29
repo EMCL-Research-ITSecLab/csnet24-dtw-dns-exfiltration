@@ -86,7 +86,7 @@ def train(name, clf):
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
 
-            with open(f"result_{ti['time_interval_name']}_{ts}.json", "a+") as f:
+            with open(f"result_{ti['time_interval_name']}.json", "a+") as f:
                 f.write(json.dumps(result) + "\n")
 
 
