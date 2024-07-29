@@ -65,7 +65,7 @@ def train(name, clf):
             print("Predicting production set...")
             result["prod"] = {}
 
-            X_new, y_new = load_dataset(
+            X_new, y_new, _, _ = load_dataset(
                 ti["time_interval_name"], ts_type=ts, data=HEICLOUD_DATA
             )
 
@@ -85,7 +85,7 @@ def train(name, clf):
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
 
-            with open(f"result_{name}_{ti['time_interval_name']}_{ts}.json", "a") as f:
+            with open(f"result_{name}_{ti['time_interval_name']}_{ts}.json", "a+") as f:
                 f.write(json.dumps(result) + "\n")
 
 
