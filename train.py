@@ -63,28 +63,28 @@ def train(name, clf):
             print(f"False Positive Rate: {fpr_test}")
             print(f"False Discovery Rate: {fdr_test}")
 
-            print("Predicting production set...")
-            result["prod"] = {}
+            # print("Predicting production set...")
+            # result["prod"] = {}
 
-            X_new, y_new, _, _ = load_dataset(
-                ti["time_interval_name"], ts_type=ts, data=HEICLOUD_DATA
-            )
+            # X_new, y_new, _, _ = load_dataset(
+            #     ti["time_interval_name"], ts_type=ts, data=HEICLOUD_DATA
+            # )
 
-            y_pred = clf.predict(X_new)
-            report = classification_report(y_new, y_pred, output_dict=True)
-            fttar_test = fttar(y_new, y_pred)
-            fpr_test = fpr(y_new, y_pred)
-            fdr_test = fdr(y_new, y_pred)
+            # y_pred = clf.predict(X_new)
+            # report = classification_report(y_new, y_pred, output_dict=True)
+            # fttar_test = fttar(y_new, y_pred)
+            # fpr_test = fpr(y_new, y_pred)
+            # fdr_test = fdr(y_new, y_pred)
 
-            result["prod"]["report"] = report
-            result["prod"]["fttar"] = fttar_test
-            result["prod"]["fpr"] = fpr_test
-            result["prod"]["fdr"] = fdr_test
+            # result["prod"]["report"] = report
+            # result["prod"]["fttar"] = fttar_test
+            # result["prod"]["fpr"] = fpr_test
+            # result["prod"]["fdr"] = fdr_test
 
-            print(report)
-            print(f"FTTAR: {fttar_test}")
-            print(f"False Positive Rate: {fpr_test}")
-            print(f"False Discovery Rate: {fdr_test}")
+            # print(report)
+            # print(f"FTTAR: {fttar_test}")
+            # print(f"False Positive Rate: {fpr_test}")
+            # print(f"False Discovery Rate: {fdr_test}")
 
             with open(f"result_{ti['time_interval_name']}.json", "a+") as f:
                 f.write(json.dumps(result) + "\n")
