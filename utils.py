@@ -300,8 +300,8 @@ def load_dataset(
                 f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_{dt}.npy"
             )
         if X.size != 0:
-
-            X = MinMaxScaler().fit_transform(X)
+            if ts_type != "multivariate":
+                X = MinMaxScaler().fit_transform(X)
             y_arr.append(y)
             x_arr.append(X)
         else:
