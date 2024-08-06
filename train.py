@@ -99,9 +99,9 @@ if __name__ == "__main__":
             clf = HIVECOTEV2(n_jobs=-1, verbose=1)
         case "knn-euclidean":
             eucl_dist = FlatDist(ScipyDist())
-            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, verbose=1, n_jobs=-1, distance=eucl_dist)
+            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, n_jobs=-1, distance=eucl_dist)
         case "knn-dtw":
-            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, verbose=1, n_jobs=-1, distance="dtw")
+            clf = KNeighborsTimeSeriesClassifier(n_neighbors=2, n_jobs=-1, distance="dtw")
         case "knn-dtw-sakoe":
             clf = KNeighborsTimeSeriesClassifierTslearn(
                 n_neighbors=2,

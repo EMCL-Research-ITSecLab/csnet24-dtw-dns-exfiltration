@@ -282,7 +282,7 @@ def load_dataset(
     for data_type in data:
         y = np.load(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")
 
-        if ts_type == "mutlivariate":
+        if ts_type == "multivariate":
             # dt flag not used, because both are loaded anyways
             X = np.stack(
                 [
