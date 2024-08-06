@@ -113,6 +113,13 @@ if __name__ == "__main__":
                     "sakoe_chiba_radius": 3,
                 },
             )
+        case "knn-dtw-soft":
+            clf = KNeighborsTimeSeriesClassifierTslearn(
+                n_neighbors=2,
+                verbose=1,
+                n_jobs=-1,
+                metric="softdtw",
+            )
         case "knn-dtw-itakura":
             clf = KNeighborsTimeSeriesClassifierTslearn(
                 n_neighbors=2,
