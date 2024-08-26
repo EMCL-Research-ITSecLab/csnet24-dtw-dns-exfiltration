@@ -44,6 +44,8 @@ sed -i -- 's/192.168.20.38/1.1.1.3/g' benign_heavy_3.csv
 
 In addition, we also traced DNS tunnels in our lab environment.
 
+Check [heiBOX](https://heibox.uni-heidelberg.de/d/c4654c4d1e054c938ebe/) for the PCAPs files.
+
 ## Verification
 
 In order to validate our results, we implemented a XGBoost Ensemble and validated our performance against a well-established method.

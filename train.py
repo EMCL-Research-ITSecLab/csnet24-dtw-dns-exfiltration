@@ -42,7 +42,7 @@ def train(name, clf):
             clf.fit(X_train, y_train)
 
             joblib.dump(
-                clf, f"models/model_{name}_{ti['time_interval_name']}_{ts}.pickle"
+                clf, f"/mnt/data/models/model_{name}_{ti['time_interval_name']}_{ts}.pickle"
             )
 
             print("Predicting test set...")
