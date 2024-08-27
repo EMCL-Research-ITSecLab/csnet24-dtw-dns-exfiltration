@@ -4,12 +4,8 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sktime.classification.distance_based import KNeighborsTimeSeriesClassifierTslearn
 
 from utils import (
-    HEICLOUD_DATA,
     TIME_INTERVAL_CONFIG,
     TS_TYPE,
-    fdr,
-    fpr,
-    fttar,
     load_dataset,
 )
 
