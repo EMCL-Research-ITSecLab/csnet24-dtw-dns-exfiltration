@@ -22,7 +22,7 @@ class Sniffer(Thread):
 
     def run(self):
         while True:
-            sniff(prn=self.que.put, iface="eno1", filter="udp and port 53")
+            sniff(prn=self.que.put, iface="enp6s0", filter="udp and port 53")
 
 
 class Consumer(Thread):
@@ -45,6 +45,7 @@ class Consumer(Thread):
                     or packet[DNSQR].qtype == 5
                     or packet[DNSQR].qtype == 16
                     or packet[DNSQR].qtype == 10
+                    or packet[DNSQR].qtype == 41
                 )
                 and packet.dport == 53
             ):
@@ -75,7 +76,7 @@ class Consumer(Thread):
 class Validator(Thread):
     """Consumer"""
 
-    def __init__(self, que: Queue, model_path: str = "./dtwknn.pickle"):
+    def __init__(self, que: Queue, model_path: str = "/mnt/data/models/model_knn-dtw_15s_univariate_new.pickle"):
         super().__init__()
         self.que: Queue = que
         self.data = []
@@ -90,7 +91,7 @@ class Validator(Thread):
                 df = (
                     df_total.sort("timestamp")
                     .group_by_dynamic(
-                        "timestamp", every="2s", closed="right", by=["src_ip", "dst_ip"]
+                        "timestamp", every="1s", closed="right", by=["src_ip", "dst_ip"]
                     )
                     .agg(pl.col("entropy").mean(), pl.col("packet_size").mean())
                 )
@@ -125,9 +126,9 @@ class Validator(Thread):
 
                     data_entropy = data.select("entropy").rows(named=True)[0]["entropy"]
 
-                    # Time interval 5 sec.
-                    if len(data_entropy) > 4:
-                        result = self.model.predict(np.asarray(data_entropy[:5]))
+                    # Time interval 15 sec.
+                    if len(data_entropy) > 14:
+                        result = self.model.predict(np.asarray(data_entropy[:15]).reshape(-1,15))
                         if result[0] == 2:
                             print(f"Prediction for data: {result}")
                             print(
@@ -136,8 +137,8 @@ class Validator(Thread):
 
                         # self.data.append(data)
                         # y = np.full((len(self.data), 1), 1)
-                        # np.save(f"dtw_data_npy/x_live_1min_entropy.npy", self.data)
-                        # np.save(f"dtw_data_npy/y_live_1min_entropy.npy", y)
+                        # np.save(f"dtw_data_npy/x_live_15s_entropy.npy", self.data)
+                        # np.save(f"dtw_data_npy/y_live_15s_entropy.npy", y)
 
                         # Clear channels
                         self.channels = []

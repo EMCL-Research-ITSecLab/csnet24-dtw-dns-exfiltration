@@ -232,6 +232,7 @@ def perf_measure(y_actual, y_pred):
 def fdr(y_actual, y_pred):
     TP, FP, TN, FN = perf_measure(y_actual, y_pred)
     if (FP + TP) == 0:
+        print("WARNING: FP + TP = 0")
         return 0
     return FP / (FP + TP)
 
@@ -239,6 +240,7 @@ def fdr(y_actual, y_pred):
 def fpr(y_actual, y_pred):
     TP, FP, TN, FN = perf_measure(y_actual, y_pred)
     if (FP + TN) == 0:
+        print("WARNING: FP + TN = 0")
         return 0
     return FP / (FP + TN)
 
@@ -246,6 +248,7 @@ def fpr(y_actual, y_pred):
 def fttar(y_actual, y_pred):
     TP, FP, TN, FN = perf_measure(y_actual, y_pred)
     if (TP) == 0:
+        print("WARNING: TP = 0")
         return 0
     return FP / TP
 
@@ -276,11 +279,12 @@ def load_dataset(
     ts_type: str = "univariate",
     dt: str = "entropy",
     data=DATA_CONFIG,
+    max_size=-1
 ):
     x_arr = []
     y_arr = []
     for data_type in data:
-        y = np.load(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")
+        y = np.load(f"dtw_data_npy/y_{data_type['name']}_{time_interval_name}_{dt}.npy")[:max_size]
 
         if ts_type == "multivariate":
             # dt flag not used, because both are loaded anyways
@@ -288,17 +292,17 @@ def load_dataset(
                 [
                     np.load(
                         f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_entropy.npy"
-                    ),
+                    )[:max_size],
                     np.load(
                         f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_packet_size.npy"
-                    ),
+                    )[:max_size],
                 ],
                 axis=1,
             )
         else:
             X = np.load(
                 f"dtw_data_npy/x_{data_type['name']}_{time_interval_name}_{dt}.npy"
-            )
+            )[:max_size]
         if X.size != 0:
             if ts_type != "multivariate":
                 X = MinMaxScaler().fit_transform(X)
