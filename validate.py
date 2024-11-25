@@ -23,7 +23,7 @@ def validate(name):
                 f"/mnt/data/models/model_{name}_{ti['time_interval_name']}_{ts}.pickle"
             )
             
-            for i in len(HEICLOUD_DATA):
+            for i in range(len(HEICLOUD_DATA)):
                 result = dict()
 
                 result["time_interval"] = ti["time_interval_name"]
@@ -35,7 +35,7 @@ def validate(name):
                 result["prod"] = {}
                 
                 X_new, y_new, _, _ = load_dataset(
-                    ti["time_interval_name"], ts_type=ts, data=[HEICLOUD_DATA[i]]
+                    ti["time_interval_name"], ts_type=ts, data=[HEICLOUD_DATA[i]], 
                 )
                 
                 print(f"Data has shape: {X_new.shape}")

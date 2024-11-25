@@ -1,6 +1,6 @@
 import json
 import sys
-
+import numpy as np
 import joblib
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
@@ -31,7 +31,15 @@ def train(name, clf):
 
             print(f"Run analysis on data: {ti['time_interval_name']} for {ts}")
 
-            X, y, _, _ = load_dataset(ti["time_interval_name"], ts_type=ts)
+            X, y, _, _ = load_dataset(ti["time_interval_name"], ts_type=ts, max_size=300)
+
+            # for i in range(len(HEICLOUD_DATA)):
+            #     X_new, y_new, _, _ = load_dataset(
+            #         ti["time_interval_name"], ts_type=ts, data=[HEICLOUD_DATA[i]], max_size=10000
+            #     )
+            #     X = np.append(X, X_new, axis=0)
+            #     y = np.append(y, y_new, axis=0)
+            #     break
 
             print(f"Data has shape: {X.shape}")
 
